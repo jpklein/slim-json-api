@@ -1,16 +1,5 @@
 <?php
 /**
- * TVTime API code sample.
- *
- * Able to:
- * - Retrieve movie data given a unique ID
- * - Retrieve what movies an actor is in
- * - Submit movie rating per user
- * - Retrieve overall movie rating based on all users' ratings
- *
- * NB: Without installed Composer dependencies, this code is not functional and intended
- * as psuedocode which requires additional environmental configuration before testing.
- *
  * @author    Philippe Klein <jpklein@gmail.com>
  * @copyright Copyright (c) 2017 Philippe Klein
  * @version   0.2
