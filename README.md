@@ -6,10 +6,14 @@ Able to:
  * Retrieve overall movie rating based on all users' ratings
 
 To test:
- 1. Ensure you have PHP >7.0 installed and MySQL server >5.7 running (eg: `mysql.server start`)
- 1. Clone the contents of this respository to the test environment
- 1. Install Slim package with [Composer](https://getcomposer.org)
- ```
- > cd rest-sample
- > php composer.phar install
- ```
+1. Ensure you have PHP >7.0 installed and MySQL server >5.7 running (eg: `mysql.server start`)
+1. Clone the contents of this respository to the test environment
+1. Install Slim package with [Composer](https://getcomposer.org)
+   ```
+   > cd rest-sample
+   > php composer.phar install
+   ```
+4. Install the testing database
+   ```
+   > php app.php install stage
+   ```

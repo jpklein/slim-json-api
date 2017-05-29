@@ -5,25 +5,8 @@
  * @version   0.2
  */
 
-// autoloads composer dependencies
-require '../vendor/autoload.php';
-
-// enables slim framework development settings
-$settings = [
-    'displayErrorDetails'    => true,
-    'addContentLengthHeader' => false
-];
-
-// @todo enter credentials
-$settings['db'] = [
-    'host'   => "localhost",
-    'dbname' => "tvtime",
-    'user'   => "user",
-    'pass'   => "password"
-];
-
 // creates application
-$app = new \Slim\App(['settings' => $settings]);
+$app = new \Slim\App(['settings' => APP_CONFIG]);
 
 // creates dependency injection container
 $container = $app->getContainer();
@@ -41,21 +24,6 @@ $container['db'] = function ($config)
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     return $pdo;
 };
-
-// @todo move to runonce/install routine
-$pdo = $app->db();
-
-// creates table for moviedata
-$pdo->exec('CREATE TABLE moviedata (movie_id INT NOT NULL, serialized BLOB, PRIMARY KEY(movie_id))');
-
-// creates table for actormovies
-$pdo->exec('CREATE TABLE actormovies (actor_id INT NOT NULL, serialized BLOB, PRIMARY KEY(actor_id))');
-
-// creates table for movieratings
-$pdo->exec('CREATE TABLE movieratings (movie_id INT NOT NULL, average_rating INT NOT NULL, total_ratings INT NOT NULL, PRIMARY KEY(movie_id))');
-
-// creates table for usermovieratings
-$pdo->exec('CREATE TABLE usermovieratings (user_id INT NOT NULL, movie_id INT NOT NULL, rating INT NOT NULL, PRIMARY KEY(user_id, movie_id))');
 
 
 /**
@@ -83,7 +51,7 @@ class MoviedataMapper extends PdoMapper
     public function __construct(PDO $connection)
     {
         $this->connection = $connection;
-        $this->entity = (object) ['movie_id' => NULL, 'serialized' => NULL];
+        $this->entity = (object)['movie_id' => null, 'serialized' => null];
     }
 
     // defines read method
