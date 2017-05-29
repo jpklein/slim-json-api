@@ -14,12 +14,9 @@ unset($argv[0]);
 
 foreach ($argv as $arg) {
     $sql = '';
-    $method = 'getDbConnection';
 
     switch ($arg) {
         case 'install':
-            // Tells app to create new database
-            $method = 'createDbConnection';
             // Creates table for moviedata
             $sql .= 'CREATE TABLE moviedata (movie_id INT NOT NULL, serialized BLOB, PRIMARY KEY(movie_id));';
             // Creates table for movieratings
@@ -43,11 +40,11 @@ foreach ($argv as $arg) {
             break;
 
         case 'uninstall':
+            // Includes settings definition
+            require_once 'src/App.php';
             // Drops app database
-            require_once 'app/AppFactory.php';
-            $connection = $connection ?? \RestSample\AppFactory::getApp()->$method();
-            $connection->exec('DROP DATABASE IF EXISTS '.APP_CONFIG['db']['dbname']);
-            continue 2;
+            $sql .= 'DROP DATABASE IF EXISTS '.APP_CONFIG['db']['dbname'];
+            break;
 
         default:
             // Displays available commands
@@ -55,8 +52,9 @@ foreach ($argv as $arg) {
             exit(1);
     }
 
-    require_once 'app/AppFactory.php';
-    $connection = $connection ?? \RestSample\AppFactory::getApp()->$method();
-
+    // Creates new database if it doesn't exist
+    require_once 'src/App.php';
+    $connection = $connection ?? \RestSample\App::withConfig()->getDbConnection();
+    // Executes sql commands
     $connection->exec($sql);
 }

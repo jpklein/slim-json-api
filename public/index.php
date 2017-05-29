@@ -6,10 +6,10 @@
  */
 declare(strict_types=1);
 
+require_once '../src/App.php';
+
 // Creates application
-$app = new \Slim\App(['settings' => APP_CONFIG]);
+$router = \RestSample\App::withConfig()->getRouter();
 
-// Creates dependency injection container
-$container = $app->getContainer();
-
-var_dump($app);
+// Handles request
+$router->run();
