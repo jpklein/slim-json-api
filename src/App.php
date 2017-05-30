@@ -45,6 +45,10 @@ class App
         return $pdo;
     }
 
+    /**
+     * @todo Validates input parameters in middleware
+     * @todo Exposes OPTIONS endpoint
+     */
     public function getRouter(): \Slim\App
     {
         // Autoloads Composer dependencies
@@ -71,6 +75,18 @@ class App
             // Formats output
             $result->data = json_decode($result->serialized);
             unset($result->serialized);
+
+            return $response->withJson($result);
+        });
+
+        // Retrieves overall movie rating based on all users' ratings
+        $slim->get('/movierating/{movie_id}', function (Request $request, Response $response) {
+            try {
+                $model = new PdoModels\MovieratingModel($this->db);
+                $result = $model->getMovieRatingById((int) $request->getAttribute('movie_id'));
+            } catch (\Exception $e) {
+                return $response->withJson($e->getMessage(), $e->getCode());
+            }
 
             return $response->withJson($result);
         });
