@@ -59,7 +59,21 @@ class App
         // Establishes connection to mysql db
         $dic['db'] = $this->getDbConnection();
 
-        // @todo Defines application endpoints
+        // Retrieves movie data given a unique ID
+        $slim->get('/moviedata/{movie_id}', function (Request $request, Response $response) {
+            try {
+                $model = new PdoModels\MoviedataModel($this->db);
+                $result = $model->getMovieDataById((int) $request->getAttribute('movie_id'));
+            } catch (\Exception $e) {
+                return $response->withJson($e->getMessage(), $e->getCode());
+            }
+
+            // Formats output
+            $result->data = json_decode($result->serialized);
+            unset($result->serialized);
+
+            return $response->withJson($result);
+        });
 
         return $slim;
     }
