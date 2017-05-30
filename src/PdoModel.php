@@ -10,8 +10,7 @@ namespace RestSample;
 
 /**
  * Declares the ORM
- *
- * @todo Provides method for displaying error messages in response body
+ * @todo Uses trait to provide method for displaying error messages in response body
  */
 class PdoModel
 {
