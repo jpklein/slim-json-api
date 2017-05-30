@@ -46,8 +46,12 @@ class App
     }
 
     /**
+     * Returns Slim dispatcher to handle incoming HTTP requests
+     * @todo Persists individual ratings in usermovieratings table
      * @todo Validates input parameters in middleware
      * @todo Exposes OPTIONS endpoint
+     *
+     * @return \Slim\App
      */
     public function getRouter(): \Slim\App
     {
@@ -66,6 +70,7 @@ class App
         // Retrieves movie data given a unique ID
         $slim->get('/moviedata/{movie_id}', function (Request $request, Response $response) {
             try {
+                // Calls model get method
                 $model = new PdoModels\MoviedataModel($this->db);
                 $result = $model->getMovieDataById((int) $request->getAttribute('movie_id'));
             } catch (\Exception $e) {
@@ -82,10 +87,28 @@ class App
         // Retrieves overall movie rating based on all users' ratings
         $slim->get('/movierating/{movie_id}', function (Request $request, Response $response) {
             try {
+                // Calls model get method
                 $model = new PdoModels\MovieratingModel($this->db);
                 $result = $model->getMovieRatingById((int) $request->getAttribute('movie_id'));
             } catch (\Exception $e) {
                 return $response->withJson($e->getMessage(), $e->getCode());
+            }
+
+            return $response->withJson($result);
+        });
+
+        // Accepts movie rating per user
+        $app->post('/movierating/{movie_id}', function (Request $request, Response $response) {
+            // Sanitizes inputs
+            $data = $request->getParsedBody();
+            $data['movie_rating'] = filter_var($data['movie_rating'], FILTER_VALIDATE_INT);
+
+            try {
+                // Calls model set method
+                $mapper = new PdoModels\MovieratingModel($this->db);
+                $result = $model->setMovieRatingById((int) $request->getAttribute('movie_id'), $data['movie_rating']);
+            } catch (Exception $e) {
+                return $response->withJson($e->message, $e->code);
             }
 
             return $response->withJson($result);
