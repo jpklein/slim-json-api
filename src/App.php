@@ -98,17 +98,28 @@ class App
         });
 
         // Accepts movie rating per user
-        $app->post('/movierating/{movie_id}', function (Request $request, Response $response) {
+        $slim->post('/movierating/{movie_id}', function (Request $request, Response $response) {
             // Sanitizes inputs
-            $data = $request->getParsedBody();
-            $data['movie_rating'] = filter_var($data['movie_rating'], FILTER_VALIDATE_INT);
-
+            // @todo Limits spam requests to endpoint
+            $data = [];
+            foreach ($request->getParsedBody() as $key => $value) {
+                switch ($key) {
+                    case 'user_id':
+                        // Falls through to test integer value input
+                    case 'movie_rating':
+                        // Ignores value unless it passes validation
+                        if (!is_bool($value) && ($value = filter_var($value, FILTER_VALIDATE_INT)) !== false) {
+                            $data[$key] = $value;
+                        }
+                        break;
+                }
+            }
             try {
                 // Calls model set method
-                $mapper = new PdoModels\MovieratingModel($this->db);
-                $result = $model->setMovieRatingById((int) $request->getAttribute('movie_id'), $data['movie_rating']);
-            } catch (Exception $e) {
-                return $response->withJson($e->message, $e->code);
+                $model = new PdoModels\MovieratingModel($this->db);
+                $result = $model->setMovieRatingById((int) $request->getAttribute('movie_id'), (int) $data['movie_rating']);
+            } catch (\Exception $e) {
+                return $response->withJson($e->getMessage(), $e->getCode());
             }
 
             return $response->withJson($result);
