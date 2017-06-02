@@ -56,9 +56,6 @@ class MovieratingModel extends \RestSample\PdoModel
      */
     public function setMovieRatingById(int $movie_id, int $movie_rating, int $rating_weight = 1)
     {
-        // Prepares query parameters
-        $bindings = [':movie_id' => $movie_id, ':average_rating' => $movie_rating, ':total_ratings' => $rating_weight];
-
         try {
             // Fetches current rating data. Execution may stop here on exception
             $current = $this->getMovieRatingById($movie_id);
@@ -69,9 +66,6 @@ class MovieratingModel extends \RestSample\PdoModel
             // Calculates new average rating
             $new_rating = (($current->average_rating * $current->total_ratings) + ($movie_rating * $rating_weight)) / $new_weight;
 
-            // Updates query parameters
-            $bindings[':average_rating'] = $new_rating;
-            $bindings[':total_ratings'] = $new_weight;
         } catch (\Exception $e) {
             // Bubbles up exception from read operation unless no matching record found
             if ($e->code !== static::HTTP_BAD_REQUEST) {
@@ -80,15 +74,17 @@ class MovieratingModel extends \RestSample\PdoModel
         }
 
         // Performs update if insert would cause a duplicate primary key value
-        $sql = 'INSERT INTO movieratings (movie_id, average_rating, total_ratings) VALUES (:movie_id, :average_rating, :total_ratings) ON DUPLICATE KEY UPDATE average_rating=:average_rating, total_ratings=:total_ratings';
-        $statement = $this->connection->prepare($sql);
-        $result = $statement->execute($bindings);
+        $statement = $this->connection->prepare('INSERT INTO movieratings (movie_id, average_rating, total_ratings) VALUES (:movie_id, :average_rating, :total_ratings) ON DUPLICATE KEY UPDATE average_rating=:average_rating, total_ratings=:total_ratings');
+
+        // Updates query parameters
+        $result = $statement->execute([':movie_id' => $movie_id, ':average_rating' => $new_rating, ':total_ratings' => $new_weight]);
 
         // Throws exception on connection error
         if (!$result) {
             throw new \Exception('Error saving MovieRating for Movie ID '.$movie_id, static::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return $result;
+        // Populates return object
+        return (object) ['movie_id' => $movie_id, 'average_rating' => $new_rating, 'total_ratings' => $new_weight];
     }
 }
