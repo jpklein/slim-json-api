@@ -11,13 +11,6 @@ namespace RestSample\PdoModels;
 // Interface to Movierating entity
 class MovieratingModel extends \RestSample\PdoModel
 {
-    // Initializes model
-    public function __construct(\PDO $connection)
-    {
-        $this->connection = $connection;
-        $this->entity = (object) ['movie_id' => null, 'average_rating' => null, 'total_ratings' => null];
-    }
-
     /**
      * Defines read method. Retrieves overall movie rating based on all users' ratings
      *
@@ -30,7 +23,7 @@ class MovieratingModel extends \RestSample\PdoModel
         $statement = $this->connection->prepare('SELECT * FROM movieratings WHERE movie_id = :movie_id');
 
         // Throws exception on connection error
-        if (!$statement->execute([':movie_id' => $movie_id]) || !$statement->setFetchMode(\PDO::FETCH_INTO, $this->entity)) {
+        if (!$statement->execute([':movie_id' => $movie_id])) {
             throw new \Exception('Error fetching MovieRating by Movie ID', static::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -65,10 +58,9 @@ class MovieratingModel extends \RestSample\PdoModel
 
             // Calculates new average rating
             $new_rating = (($current->average_rating * $current->total_ratings) + ($movie_rating * $rating_weight)) / $new_weight;
-
         } catch (\Exception $e) {
             // Bubbles up exception from read operation unless no matching record found
-            if ($e->code !== static::HTTP_BAD_REQUEST) {
+            if ($e->getCode() !== static::HTTP_BAD_REQUEST) {
                 throw $e;
             }
         }
@@ -76,11 +68,8 @@ class MovieratingModel extends \RestSample\PdoModel
         // Performs update if insert would cause a duplicate primary key value
         $statement = $this->connection->prepare('INSERT INTO movieratings (movie_id, average_rating, total_ratings) VALUES (:movie_id, :average_rating, :total_ratings) ON DUPLICATE KEY UPDATE average_rating=:average_rating, total_ratings=:total_ratings');
 
-        // Updates query parameters
-        $result = $statement->execute([':movie_id' => $movie_id, ':average_rating' => $new_rating, ':total_ratings' => $new_weight]);
-
         // Throws exception on connection error
-        if (!$result) {
+        if (!$statement->execute([':movie_id' => $movie_id, ':average_rating' => $new_rating, ':total_ratings' => $new_weight])) {
             throw new \Exception('Error saving MovieRating for Movie ID '.$movie_id, static::HTTP_INTERNAL_SERVER_ERROR);
         }
 

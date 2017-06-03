@@ -21,6 +21,7 @@ foreach ($argv as $arg) {
     switch ($arg) {
         case 'install':
             // Creates table for moviedata
+            // @todo Replaces serialized column with json_data
             $sql .= 'CREATE TABLE moviedata (movie_id INT NOT NULL AUTO_INCREMENT, serialized BLOB, PRIMARY KEY (movie_id));';
             // Creates table for movieratings
             $sql .= 'CREATE TABLE movieratings (movie_id INT NOT NULL, average_rating INT NOT NULL, total_ratings INT NOT NULL, UNIQUE (movie_id));';

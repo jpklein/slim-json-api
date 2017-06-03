@@ -11,13 +11,6 @@ namespace RestSample\PdoModels;
 // Interface to Moviedata entity
 class MoviedataModel extends \RestSample\PdoModel
 {
-    // Initializes model
-    public function __construct(\PDO $connection)
-    {
-        $this->connection = $connection;
-        $this->entity = (object) ['movie_id' => null, 'serialized' => null];
-    }
-
     /**
      * Defines read method
      *
@@ -30,7 +23,7 @@ class MoviedataModel extends \RestSample\PdoModel
         $statement = $this->connection->prepare('SELECT * FROM moviedata WHERE movie_id = :movie_id');
 
         // Throws exception on connection error
-        if (!$statement->execute([':movie_id' => $movie_id]) || !$statement->setFetchMode(\PDO::FETCH_INTO, $this->entity)) {
+        if (!$statement->execute([':movie_id' => $movie_id])) {
             throw new \Exception('Error fetching MovieData by Movie ID', static::HTTP_INTERNAL_SERVER_ERROR);
         }
 

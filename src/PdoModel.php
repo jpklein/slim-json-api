@@ -15,12 +15,15 @@ namespace RestSample;
 class PdoModel
 {
     // PDO connection
-    private $connection;
-
-    // Entity description
-    private $entity;
+    protected $connection;
 
     // Error codes
     const HTTP_BAD_REQUEST = 400;
     const HTTP_INTERNAL_SERVER_ERROR = 500;
+
+    // Initializes database connection
+    final public function __construct(\PDO $connection)
+    {
+        $this->connection = $connection;
+    }
 }
