@@ -2,7 +2,7 @@
 /**
  * @author    Philippe Klein <jpklein@gmail.com>
  * @copyright Copyright (c) 2017 Philippe Klein
- * @version   0.3
+ * @version   0.4
  */
 declare(strict_types=1);
 
@@ -68,37 +68,35 @@ class App
         $dic['db'] = $this->getDbConnection();
 
         // Retrieves movie data given a unique ID
-        $slim->get('/moviedata/{movie_id}', function (Request $request, Response $response) {
+        $slim->get('/movies/{movie_id}', function (Request $request, Response $response) {
             try {
                 // Calls model get method
                 $model = new PdoModels\MoviedataModel($this->db);
                 $result = $model->getMovieDataById((int) $request->getAttribute('movie_id'));
             } catch (\Exception $e) {
-                return $response->withJson($e->getMessage(), $e->getCode());
+                return $response->withJson(['errors' => ['detail' => $e->getMessage()]], $e->getCode());
             }
 
             // Formats output
-            $result->data = json_decode($result->serialized);
-            unset($result->serialized);
-
-            return $response->withJson($result);
+            return $response->withJson(['data' => [$result]]);
         });
 
         // Retrieves overall movie rating based on all users' ratings
-        $slim->get('/movierating/{movie_id}', function (Request $request, Response $response) {
+        $slim->get('/movieratings/{movie_id}', function (Request $request, Response $response) {
             try {
                 // Calls model get method
                 $model = new PdoModels\MovieratingModel($this->db);
                 $result = $model->getMovieRatingById((int) $request->getAttribute('movie_id'));
             } catch (\Exception $e) {
-                return $response->withJson($e->getMessage(), $e->getCode());
+                return $response->withJson(['errors' => ['detail' => $e->getMessage()]], $e->getCode());
             }
 
-            return $response->withJson($result);
+            // Formats output
+            return $response->withJson(['data' => [$result]]);
         });
 
         // Accepts movie rating per user
-        $slim->post('/movierating/{movie_id}', function (Request $request, Response $response) {
+        $slim->post('/movieratings/{movie_id}', function (Request $request, Response $response) {
             // Sanitizes inputs
             // @todo Limits spam requests to endpoint
             $data = [];

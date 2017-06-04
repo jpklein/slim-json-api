@@ -20,21 +20,22 @@ class MoviedataModel extends \RestSample\PdoModel
     public function getMovieDataById(int $movie_id)
     {
         // Prepares select statement
-        $statement = $this->connection->prepare('SELECT * FROM moviedata WHERE movie_id = :movie_id');
+        $statement = $this->connection->prepare('SELECT * FROM movies WHERE id = :movie_id');
 
         // Throws exception on connection error
         if (!$statement->execute([':movie_id' => $movie_id])) {
-            throw new \Exception('Error fetching MovieData by Movie ID', static::HTTP_INTERNAL_SERVER_ERROR);
+            throw new \Exception('Error fetching Movie by ID', static::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        // Populates object
-        $result = $statement->fetch(\PDO::FETCH_OBJ);
+        // Populates array
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
 
-        // Throws exception when object contains no data
-        if (!$result || is_null($result)) {
-            throw new \Exception('No MovieData for Movie ID '.$movie_id, static::HTTP_BAD_REQUEST);
+        // Throws exception when array contains no data
+        if (!$result || empty(array_filter($result))) {
+            throw new \Exception('No Movie for ID '.$movie_id, static::HTTP_BAD_REQUEST);
         }
 
-        return $result;
+        // Returns JSON resource object
+        return (object) ['type' => 'movies', 'id' => $result['id'], 'attributes' => json_decode($result['attributes'], true)];
     }
 }

@@ -27,15 +27,16 @@ class MovieratingModel extends \RestSample\PdoModel
             throw new \Exception('Error fetching MovieRating by Movie ID', static::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        // Populates object
-        $result = $statement->fetch(\PDO::FETCH_OBJ);
+        // Populates array
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
 
-        // Throws exception when object contains no data
-        if (!$result || is_null($result)) {
+        // Throws exception when array contains no data
+        if (!$result || empty(array_filter($result))) {
             throw new \Exception('No MovieRating for Movie ID '.$movie_id, static::HTTP_BAD_REQUEST);
         }
 
-        return $result;
+        // Returns JSON resource object
+        return (object) ['type' => 'movieratings', 'id' => $result['id'], 'attributes' => ['average_rating' => $result['average_rating'], 'total_ratings' => $result['total_ratings']], 'relationships' => ['movies' => ['data' => ['type' => 'movies', 'id' => $result['movie_id']]]]];
     }
 
     /**

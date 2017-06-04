@@ -12,7 +12,7 @@ class MoviedataModelTest extends \PHPUnit\Framework\TestCase
 {
     // Includes DBUnit connection for testing
     use \RestSample\Tests\PdoModelTestTrait {
-        \RestSample\Tests\PdoModelTestTrait::setUp as fixureSetUp;
+        \RestSample\Tests\PdoModelTestTrait::setUp as traitSetUp;
     }
 
     public function setUp()
@@ -32,12 +32,12 @@ class MoviedataModelTest extends \PHPUnit\Framework\TestCase
 
     public function testGetRowCount()
     {
-        $this->assertEquals(3, $this->getConnection()->getRowCount('moviedata'));
+        $this->assertEquals(3, $this->getConnection()->getRowCount('movies'));
     }
 
     public function testTwo()
     {
-        $expected = (object) ['movie_id' => 1, 'serialized' => '{"name":"Jaws"}'];
+        $expected = (object) ['type' => 'movies', 'id' => '1', 'attributes' => '{"name":"Jaws"}'];
         $this->assertEquals($expected, $this->model->getMovieDataById(1));
     }
 }

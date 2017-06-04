@@ -2,7 +2,7 @@
 /**
  * @author    Philippe Klein <jpklein@gmail.com>
  * @copyright Copyright (c) 2017 Philippe Klein
- * @version   0.3
+ * @version   0.4
  */
 declare(strict_types=1);
 
@@ -20,21 +20,20 @@ foreach ($argv as $arg) {
 
     switch ($arg) {
         case 'install':
-            // Creates table for moviedata
-            // @todo Replaces serialized column with json_data
-            $sql .= 'CREATE TABLE moviedata (movie_id INT NOT NULL AUTO_INCREMENT, serialized BLOB, PRIMARY KEY (movie_id));';
+            // Creates table for movie data
+            $sql .= 'CREATE TABLE movies (id INT NOT NULL AUTO_INCREMENT, attributes BLOB, PRIMARY KEY (id));';
             // Creates table for movieratings
-            $sql .= 'CREATE TABLE movieratings (movie_id INT NOT NULL, average_rating INT NOT NULL, total_ratings INT NOT NULL, UNIQUE (movie_id));';
+            $sql .= 'CREATE TABLE movieratings (id INT NOT NULL AUTO_INCREMENT, movie_id INT NOT NULL, average_rating INT NOT NULL, total_ratings INT NOT NULL, PRIMARY KEY (id), UNIQUE (movie_id));';
             // Creates table for usermovieratings
-            $sql .= 'CREATE TABLE usermovieratings (user_id INT NOT NULL, movie_id INT NOT NULL, rating INT NOT NULL, PRIMARY KEY (user_id, movie_id));';
+            $sql .= 'CREATE TABLE usermovieratings (id INT NOT NULL AUTO_INCREMENT, user_id INT NOT NULL, movie_id INT NOT NULL, rating INT NOT NULL, PRIMARY KEY (id), UNIQUE (user_id, movie_id));';
             break;
 
         case 'stage':
             // Prepares PDO connection
             require_once 'src/App.php';
             $connection = $connection ?? \RestSample\App::withConfig()->getDbConnection();
-            // Generates dummy moviedata records
-            $statement = $connection->prepare('INSERT INTO moviedata (serialized) VALUES (?);INSERT INTO moviedata (serialized) VALUES (?);INSERT INTO moviedata (serialized) VALUES (?);');
+            // Generates dummy movie records
+            $statement = $connection->prepare('INSERT INTO movies (attributes) VALUES (?);INSERT INTO movies (attributes) VALUES (?);INSERT INTO movies (attributes) VALUES (?);');
             $statement->execute([json_encode(['name'=>'Jaws']), json_encode(['name'=>'The Ten Commandments']), json_encode(['name'=>'Titanic'])]);
             // Generates dummy movieratings records
             $statement = $connection->prepare('INSERT INTO movieratings (movie_id, average_rating, total_ratings) VALUES (?, ?, ?);');
@@ -46,8 +45,8 @@ foreach ($argv as $arg) {
             continue(2);
 
         case 'unstage':
-            // Truncates table for moviedata
-            $sql .= 'TRUNCATE TABLE moviedata;';
+            // Truncates table for movies
+            $sql .= 'TRUNCATE TABLE movies;';
             // Truncates table for movieratings
             $sql .= 'TRUNCATE TABLE movieratings;';
             // Truncates table for usermovieratings
