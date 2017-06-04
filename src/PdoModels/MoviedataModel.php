@@ -2,7 +2,7 @@
 /**
  * @author    Philippe Klein <jpklein@gmail.com>
  * @copyright Copyright (c) 2017 Philippe Klein
- * @version   0.3
+ * @version   0.4
  */
 declare(strict_types=1);
 
