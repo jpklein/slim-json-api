@@ -30,14 +30,39 @@ class MoviedataModelTest extends \PHPUnit\Framework\TestCase
         return $this->createFlatXmlDataSet(dirname(__DIR__).'/_files/moviedata-fixture.xml');
     }
 
-    public function testGetRowCount()
+    /**
+     * @test
+     */
+    public function testModelFetchReturnsExistingRecord()
     {
-        $this->assertEquals(3, $this->getConnection()->getRowCount('movies'));
+        $expected = (object) ['type' => 'movies', 'id' => '1', 'attributes' => ['name' => 'Avatar']];
+        $this->assertEquals($expected, $this->model->getMovieDataById(1));
     }
 
-    public function testTwo()
+    /**
+     * @test
+     */
+    public function testModelFetchThrowsExceptionForMissingRecord()
     {
-        $expected = (object) ['type' => 'movies', 'id' => '1', 'attributes' => '{"name":"Jaws"}'];
-        $this->assertEquals($expected, $this->model->getMovieDataById(1));
+        $this->expectException(\Exception::class);
+        $this->model->getMovieDataById(9);
+    }
+
+    /**
+     * @test
+     */
+    public function testModelFetchThrowsExceptionForInvalidId()
+    {
+        $this->expectException(\TypeError::class);
+        $this->model->getMovieDataById('id');
+    }
+
+    /**
+     * @test
+     */
+    public function testModelFetchThrowsExceptionForMissingId()
+    {
+        $this->expectException(\ArgumentCountError::class);
+        $this->model->getMovieDataById();
     }
 }
