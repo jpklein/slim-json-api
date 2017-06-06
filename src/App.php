@@ -71,7 +71,7 @@ class App
         $slim->get('/movies/{movie_id}', function (Request $request, Response $response) {
             try {
                 // Calls model get method
-                $model = new PdoModels\MoviedataModel($this->db);
+                $model = new PdoModels\MoviesModel($this->db);
                 $result = $model->getMovieDataById((int) $request->getAttribute('movie_id'));
             } catch (\Exception $e) {
                 return $response->withJson(['errors' => ['detail' => $e->getMessage()]], $e->getCode());

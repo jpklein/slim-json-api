@@ -8,8 +8,8 @@ declare(strict_types=1);
 
 namespace RestSample\PdoModels;
 
-// Interface to Moviedata entity
-class MoviedataModel extends \RestSample\PdoModel
+// Interface to Movie entity
+class MoviesModel extends \RestSample\PdoModel
 {
     /**
      * Defines read method

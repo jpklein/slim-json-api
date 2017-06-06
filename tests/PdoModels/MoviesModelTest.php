@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace RestSample\Tests\PdoModels;
 
-class MoviedataModelTest extends \PHPUnit\Framework\TestCase
+class MoviesModelTest extends \PHPUnit\Framework\TestCase
 {
     // Includes DBUnit connection for testing
     use \RestSample\Tests\PdoModelTestTrait {
@@ -21,13 +21,13 @@ class MoviedataModelTest extends \PHPUnit\Framework\TestCase
         $this->traitSetUp();
 
         // Injects PDO connection from DBUnit DefaultConnection object
-        $this->model = new \RestSample\PdoModels\MoviedataModel($this->getConnection()->getConnection());
+        $this->model = new \RestSample\PdoModels\MoviesModel($this->getConnection()->getConnection());
     }
 
     // Implements method required by \PHPUnit\DbUnit\TestCaseTrait::setUp()
     public function getDataSet(): \PHPUnit\DbUnit\DataSet\FlatXmlDataSet
     {
-        return $this->createFlatXmlDataSet(dirname(__DIR__).'/_files/moviedata-fixture.xml');
+        return $this->createFlatXmlDataSet(dirname(__DIR__).'/_files/movies-fixture.xml');
     }
 
     /**

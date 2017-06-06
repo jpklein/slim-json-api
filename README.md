@@ -21,5 +21,5 @@ To test:
    ```
    > php -S 127.0.0.1:8080 -t public
    ```
-6. Open a browser to test the moviedata endpoint: `http://127.0.0.1:8080/moviedata/1`
-7. Open a browser to test the movierating endpoint: `http://127.0.0.1:8080/movierating/1`
+6. Open a browser to test the movie endpoint: `http://127.0.0.1:8080/movies/1`
+7. Open a browser to test the movierating endpoint: `http://127.0.0.1:8080/movieratings/1`
