@@ -9,7 +9,7 @@ declare(strict_types=1);
 namespace RestSample\PdoModels;
 
 // Interface to Movierating entity
-class MovieratingModel extends \RestSample\PdoModel
+class MovieratingsModel extends \RestSample\PdoModel
 {
     /**
      * Defines read method. Retrieves overall movie rating based on all users' ratings

@@ -85,7 +85,7 @@ class App
         $slim->get('/movieratings/{movie_id}', function (Request $request, Response $response) {
             try {
                 // Calls model get method
-                $model = new PdoModels\MovieratingModel($this->db);
+                $model = new PdoModels\MovieratingsModel($this->db);
                 $result = $model->getMovieRatingById((int) $request->getAttribute('movie_id'));
             } catch (\Exception $e) {
                 return $response->withJson(['errors' => ['detail' => $e->getMessage()]], $e->getCode());
@@ -114,7 +114,7 @@ class App
             }
             try {
                 // Calls model set method
-                $model = new PdoModels\MovieratingModel($this->db);
+                $model = new PdoModels\MovieratingsModel($this->db);
                 $result = $model->setMovieRatingById((int) $request->getAttribute('movie_id'), (int) $data['movie_rating']);
             } catch (\Exception $e) {
                 return $response->withJson($e->getMessage(), $e->getCode());
