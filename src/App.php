@@ -68,11 +68,11 @@ class App
         $dic['db'] = $this->getDbConnection();
 
         // Retrieves movie data given a unique ID
-        $slim->get('/movies/{movie_id}', function (Request $request, Response $response) {
+        $slim->get('/movies/{id}', function (Request $request, Response $response) {
             try {
                 // Calls model get method
                 $model = new PdoModels\MoviesModel($this->db);
-                $result = $model->getMovieDataById((int) $request->getAttribute('movie_id'));
+                $result = $model->getOneById((int) $request->getAttribute('id'));
             } catch (\Exception $e) {
                 return $response->withJson(['errors' => ['detail' => $e->getMessage()]], $e->getCode());
             }
@@ -86,7 +86,7 @@ class App
             try {
                 // Calls model get method
                 $model = new PdoModels\MovieratingsModel($this->db);
-                $result = $model->getMovieRatingById((int) $request->getAttribute('movie_id'));
+                $result = $model->getOneByMovieId((int) $request->getAttribute('movie_id'));
             } catch (\Exception $e) {
                 return $response->withJson(['errors' => ['detail' => $e->getMessage()]], $e->getCode());
             }

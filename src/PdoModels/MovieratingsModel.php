@@ -17,7 +17,7 @@ class MovieratingsModel extends \RestSample\PdoModel
      * @param  int $movie_id
      * @return \stdClass|false
      */
-    public function getMovieRatingById(int $movie_id)
+    public function getOneByMovieId(int $movie_id)
     {
         // Prepares select statement
         $statement = $this->connection->prepare('SELECT * FROM movieratings WHERE movie_id = :movie_id');
@@ -52,7 +52,7 @@ class MovieratingsModel extends \RestSample\PdoModel
     {
         try {
             // Fetches current rating data. Execution may stop here on exception
-            $current = $this->getMovieRatingById($movie_id);
+            $current = $this->getOneByMovieId($movie_id);
 
             // Calculates new total number of ratings
             $new_weight = $current->total_ratings + $rating_weight;

@@ -14,16 +14,16 @@ class MoviesModel extends \RestSample\PdoModel
     /**
      * Defines read method
      *
-     * @param  int $movie_id
+     * @param  int $id
      * @return \stdClass|false
      */
-    public function getMovieDataById(int $movie_id)
+    public function getOneById(int $id)
     {
         // Prepares select statement
-        $statement = $this->connection->prepare('SELECT * FROM movies WHERE id = :movie_id');
+        $statement = $this->connection->prepare('SELECT * FROM movies WHERE id = :id');
 
         // Throws exception on connection error
-        if (!$statement->execute([':movie_id' => $movie_id])) {
+        if (!$statement->execute([':id' => $id])) {
             throw new \Exception('Error fetching Movie by ID', static::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -32,7 +32,7 @@ class MoviesModel extends \RestSample\PdoModel
 
         // Throws exception when array contains no data
         if (!$result || empty(array_filter($result))) {
-            throw new \Exception('No Movie for ID '.$movie_id, static::HTTP_BAD_REQUEST);
+            throw new \Exception('No Movie for ID '.$id, static::HTTP_BAD_REQUEST);
         }
 
         // Returns JSON resource object

@@ -36,7 +36,7 @@ class MoviesModelTest extends \PHPUnit\Framework\TestCase
     public function testModelFetchReturnsExistingRecord()
     {
         $expected = (object) ['type' => 'movies', 'id' => '1', 'attributes' => ['name' => 'Avatar']];
-        $this->assertEquals($expected, $this->model->getMovieDataById(1));
+        $this->assertEquals($expected, $this->model->getOneById(1));
     }
 
     /**
@@ -45,7 +45,7 @@ class MoviesModelTest extends \PHPUnit\Framework\TestCase
     public function testModelFetchThrowsExceptionForMissingRecord()
     {
         $this->expectException(\Exception::class);
-        $this->model->getMovieDataById(9);
+        $this->model->getOneById(9);
     }
 
     /**
@@ -54,7 +54,7 @@ class MoviesModelTest extends \PHPUnit\Framework\TestCase
     public function testModelFetchThrowsExceptionForInvalidId()
     {
         $this->expectException(\TypeError::class);
-        $this->model->getMovieDataById('id');
+        $this->model->getOneById('id');
     }
 
     /**
@@ -63,6 +63,6 @@ class MoviesModelTest extends \PHPUnit\Framework\TestCase
     public function testModelFetchThrowsExceptionForMissingId()
     {
         $this->expectException(\ArgumentCountError::class);
-        $this->model->getMovieDataById();
+        $this->model->getOneById();
     }
 }
