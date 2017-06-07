@@ -20,10 +20,10 @@ class MoviesModel extends \RestSample\PdoModel
     public function getOneById(int $id)
     {
         // Prepares select statement
-        $statement = $this->connection->prepare('SELECT * FROM movies WHERE id = :id');
+        $statement = $this->connection->prepare('SELECT * FROM movies WHERE id = ?');
 
         // Throws exception on connection error
-        if (!$statement->execute([':id' => $id])) {
+        if (!$statement->execute([$id])) {
             throw new \Exception('Error fetching Movie by ID', static::HTTP_INTERNAL_SERVER_ERROR);
         }
 

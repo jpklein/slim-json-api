@@ -20,10 +20,10 @@ class MovieratingsModel extends \RestSample\PdoModel
     public function getOneByMovieId(int $movie_id)
     {
         // Prepares select statement
-        $statement = $this->connection->prepare('SELECT * FROM movieratings WHERE movie_id = :movie_id');
+        $statement = $this->connection->prepare('SELECT * FROM movieratings WHERE movie_id = ?');
 
         // Throws exception on connection error
-        if (!$statement->execute([':movie_id' => $movie_id])) {
+        if (!$statement->execute([$movie_id])) {
             throw new \Exception('Error fetching MovieRating by Movie ID', static::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -50,11 +50,11 @@ class MovieratingsModel extends \RestSample\PdoModel
     public function postNew(int $movie_id, int $average_rating, int $total_ratings)
     {
         // Prepares insert statement
-        $statement = $this->connection->prepare('INSERT INTO movieratings (movie_id, average_rating, total_ratings) VALUES (:movie_id, :average_rating, :total_ratings)');
+        $statement = $this->connection->prepare('INSERT INTO movieratings (movie_id, average_rating, total_ratings) VALUES (?, ?, ?)');
 
         // Throws exception on integrity constraint violation
         try {
-            $result = $statement->execute([':movie_id' => $movie_id, ':average_rating' => $average_rating, ':total_ratings' => $total_ratings]);
+            $result = $statement->execute([$movie_id, $average_rating, $total_ratings]);
         } catch (\Exception $e) {
             throw new \Exception('MovieRating already exists for Movie ID '.$movie_id, static::HTTP_CONFLICT);
         }
@@ -80,11 +80,11 @@ class MovieratingsModel extends \RestSample\PdoModel
     public function patchByMovieId(int $movie_id, int $average_rating, int $total_ratings)
     {
         // Prepares update statement. Sets mysql last_insert_id to matching record id for return
-        $statement = $this->connection->prepare('UPDATE movieratings SET average_rating = :average_rating, total_ratings = :total_ratings, id = LAST_INSERT_ID(id) WHERE movie_id = :movie_id');
+        $statement = $this->connection->prepare('UPDATE movieratings SET average_rating = ?, total_ratings = ?, id = LAST_INSERT_ID(id) WHERE movie_id = ?');
 
         // Throws exception on connection error
         try {
-            $result = $statement->execute([':movie_id' => $movie_id, ':average_rating' => $average_rating, ':total_ratings' => $total_ratings]);
+            $result = $statement->execute([$average_rating, $total_ratings, $movie_id]);
         } catch (\Exception $e) {
             throw new \Exception('Error updating MovieRating for Movie ID '.$movie_id, static::HTTP_INTERNAL_SERVER_ERROR);
         }
