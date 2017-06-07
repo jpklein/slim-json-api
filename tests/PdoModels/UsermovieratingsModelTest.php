@@ -8,6 +8,9 @@ declare(strict_types=1);
 
 namespace RestSample\Tests\PdoModels;
 
+use \RestSample\PdoModel as PdoModel;
+use \RestSample\PdoModels\UsermovieratingsModel as ModelUnderTest;
+
 class UsermovieratingsModelTest extends \PHPUnit\Framework\TestCase
 {
     // Includes DBUnit connection for testing
@@ -37,8 +40,13 @@ class UsermovieratingsModelTest extends \PHPUnit\Framework\TestCase
      */
     public function testFetchReturnsExistingRecord()
     {
-        $expected = (object) ['type' => 'usermovieratings', 'id' => '1', 'attributes' => ['rating' => '10'], 'relationships' => ['users' => ['data' => ['type' => 'users', 'id' => '1']]], 'movies' => ['data' => ['type' => 'movies', 'id' => '1']]];
-        $this->assertEquals($expected, $this->model->getOneByPrimaryKeys(1, 1));
+        // Mocks object with provided id, rating, user_id, movie_id
+        $expected = PdoModel::getObjectFromTemplate(ModelUnderTest::RESOURCE_TEMPLATE, '1', '10', '1', '1');
+
+        // Returns object with provided user_id, movie_id, rating
+        $actual = $this->model->getOneByPrimaryKeys(1, 1);
+
+        $this->assertEquals($expected, $actual);
     }
 
     /**
@@ -75,8 +83,13 @@ class UsermovieratingsModelTest extends \PHPUnit\Framework\TestCase
      */
     public function testCreateReturnsNewRecord()
     {
-        $expected = (object) ['type' => 'usermovieratings', 'id' => '4', 'attributes' => ['rating' => '8'], 'relationships' => ['users' => ['data' => ['type' => 'users', 'id' => '4']]], 'movies' => ['data' => ['type' => 'movies', 'id' => '1']]];
-        $this->assertEquals($expected, $this->model->postNew(4, 1, 8));
+        // Mocks object with provided id, rating, user_id, movie_id
+        $expected = PdoModel::getObjectFromTemplate(ModelUnderTest::RESOURCE_TEMPLATE, '4', '8', '4', '1');
+
+        // Returns object with provided user_id, movie_id, rating
+        $actual = $this->model->postNew(4, 1, 8);
+
+        $this->assertEquals($expected, $actual);
     }
 
     /**
@@ -105,8 +118,13 @@ class UsermovieratingsModelTest extends \PHPUnit\Framework\TestCase
      */
     public function testUpdateReturnsExistingRecord()
     {
-        $expected = (object) ['type' => 'usermovieratings', 'id' => '1', 'attributes' => ['rating' => '8'], 'relationships' => ['users' => ['data' => ['type' => 'users', 'id' => '1']]], 'movies' => ['data' => ['type' => 'movies', 'id' => '1']]];
-        $this->assertEquals($expected, $this->model->patchByPrimaryKeys(1, 1, 8));
+        // Mocks object with provided id, rating, user_id, movie_id
+        $expected = PdoModel::getObjectFromTemplate(ModelUnderTest::RESOURCE_TEMPLATE, '1', '8', '1', '1');
+
+        // Returns object with provided user_id, movie_id, rating
+        $expected = $this->model->patchByPrimaryKeys(1, 1, 8);
+
+        $this->assertEquals($expected, $expected);
     }
 
     /**

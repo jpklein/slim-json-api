@@ -8,6 +8,9 @@ declare(strict_types=1);
 
 namespace RestSample\Tests\PdoModels;
 
+use \RestSample\PdoModel as PdoModel;
+use \RestSample\PdoModels\MovieratingsModel as ModelUnderTest;
+
 class MovieratingsModelTest extends \PHPUnit\Framework\TestCase
 {
     // Includes DBUnit connection for testing
@@ -37,8 +40,13 @@ class MovieratingsModelTest extends \PHPUnit\Framework\TestCase
      */
     public function testFetchReturnsExistingRecord()
     {
-        $expected = (object) ['type' => 'movieratings', 'id' => '1', 'attributes' => ['average_rating' => '4', 'total_ratings' => '3'], 'relationships' => ['movies' => ['data' => ['type' => 'movies', 'id' => '1']]]];
-        $this->assertEquals($expected, $this->model->getOneByMovieId(1));
+        // Mocks object with provided id, average_rating, total_ratings, movie_id
+        $expected = PdoModel::getObjectFromTemplate(ModelUnderTest::RESOURCE_TEMPLATE, '1', '4', '3', '1');
+
+        // Returns object with provided movie_id
+        $actual = $this->model->getOneByMovieId(1);
+
+        $this->assertEquals($expected, $actual);
     }
 
     /**
@@ -56,7 +64,7 @@ class MovieratingsModelTest extends \PHPUnit\Framework\TestCase
     public function testFetchThrowsExceptionForInvalidMovieId()
     {
         $this->expectException(\TypeError::class);
-        $this->model->getOneByMovieId('9');
+        $this->model->getOneByMovieId('1');
     }
 
     /**
@@ -75,8 +83,13 @@ class MovieratingsModelTest extends \PHPUnit\Framework\TestCase
      */
     public function testCreateReturnsNewRecord()
     {
-        $expected = (object) ['type' => 'movieratings', 'id' => '2', 'attributes' => ['average_rating' => '5', 'total_ratings' => '1'], 'relationships' => ['movies' => ['data' => ['type' => 'movies', 'id' => '2']]]];
-        $this->assertEquals($expected, $this->model->postNew(2, 5, 1));
+        // Mocks object with provided id, average_rating, total_ratings, movie_id
+        $expected = PdoModel::getObjectFromTemplate(ModelUnderTest::RESOURCE_TEMPLATE, '2', '5', '1', '2');
+
+        // Returns object with provided movie_id, average_rating, total_ratings
+        $actual = $this->model->postNew(2, 5, 1);
+
+        $this->assertEquals($expected, $actual);
     }
 
     /**
@@ -105,8 +118,13 @@ class MovieratingsModelTest extends \PHPUnit\Framework\TestCase
      */
     public function testUpdateReturnsExistingRecord()
     {
-        $expected = (object) ['type' => 'movieratings', 'id' => '1', 'attributes' => ['average_rating' => '5', 'total_ratings' => '4'], 'relationships' => ['movies' => ['data' => ['type' => 'movies', 'id' => '1']]]];
-        $this->assertEquals($expected, $this->model->patchByMovieId(1, 5, 4));
+        // Mocks object with provided id, average_rating, total_ratings, movie_id
+        $expected = PdoModel::getObjectFromTemplate(ModelUnderTest::RESOURCE_TEMPLATE, '1', '5', '4', '1');
+
+        // Returns object with provided movie_id, average_rating, total_ratings
+        $actual = $this->model->patchByMovieId(1, 5, 4);
+
+        $this->assertEquals($expected, $actual);
     }
 
     /**
