@@ -27,4 +27,18 @@ class PdoModel
     {
         $this->connection = $connection;
     }
+
+    // Replaces null values in nested array with subsequent argument values
+    public static function getObjectFromTemplate(array $template)
+    {
+        $stack = func_get_args();
+        $template = array_shift($stack);
+        array_walk_recursive($template, function (&$item) use (&$stack) {
+            if (is_null($item)) {
+                $item = array_shift($stack);
+            }
+        });
+
+        return (object) $template;
+    }
 }

@@ -11,6 +11,23 @@ namespace RestSample\PdoModels;
 // Interface to Movierating entity
 class MovieratingsModel extends \RestSample\PdoModel
 {
+    const RESOURCE_TEMPLATE = [
+        'type'          => 'movieratings',
+        'id'            => null,
+        'attributes'    => [
+            'average_rating' => null,
+            'total_ratings'  => null,
+        ],
+        'relationships' => [
+            'movies' => [
+                'data' => [
+                    'type' => 'movies',
+                    'id'   => null
+                ]
+            ]
+        ]
+    ];
+
     /**
      * Defines read method. Retrieves overall movie rating based on all users' ratings
      *
@@ -36,7 +53,7 @@ class MovieratingsModel extends \RestSample\PdoModel
         }
 
         // Returns JSON resource object
-        return (object) ['type' => 'movieratings', 'id' => $result['id'], 'attributes' => ['average_rating' => $result['average_rating'], 'total_ratings' => $result['total_ratings']], 'relationships' => ['movies' => ['data' => ['type' => 'movies', 'id' => $result['movie_id']]]]];
+        return self::getObjectFromTemplate(self::RESOURCE_TEMPLATE, $result['id'], $result['average_rating'], $result['total_ratings'], $result['movie_id']);
     }
 
     /**
@@ -65,7 +82,7 @@ class MovieratingsModel extends \RestSample\PdoModel
         }
 
         // Returns JSON resource object
-        return (object) ['type' => 'movieratings', 'id' => $this->connection->lastInsertId(), 'attributes' => ['average_rating' => $average_rating, 'total_ratings' => $total_ratings], 'relationships' => ['movies' => ['data' => ['type' => 'movies', 'id' => $movie_id]]]];
+        return self::getObjectFromTemplate(self::RESOURCE_TEMPLATE, $this->connection->lastInsertId(), $average_rating, $total_ratings, $movie_id);
     }
 
     /**
@@ -95,22 +112,6 @@ class MovieratingsModel extends \RestSample\PdoModel
         }
 
         // Returns JSON resource object
-        return (object) ['type' => 'movieratings', 'id' => $id, 'attributes' => ['average_rating' => $average_rating, 'total_ratings' => $total_ratings], 'relationships' => ['movies' => ['data' => ['type' => 'movies', 'id' => $movie_id]]]];
+        return self::getObjectFromTemplate(self::RESOURCE_TEMPLATE, $id, $average_rating, $total_ratings, $movie_id);
     }
 }
-
-        // try {
-        //     // Fetches current rating data. Execution may stop here on exception
-        //     $current = $this->getOneByMovieId($movie_id);
-
-        //     // Calculates new total number of ratings
-        //     $new_weight = $current->total_ratings + $rating_weight;
-
-        //     // Calculates new average rating
-        //     $new_rating = (($current->average_rating * $current->total_ratings) + ($movie_rating * $rating_weight)) / $new_weight;
-        // } catch (\Exception $e) {
-        //     // Bubbles up exception from read operation unless no matching record found
-        //     if ($e->getCode() !== static::HTTP_BAD_REQUEST) {
-        //         throw $e;
-        //     }
-        // }

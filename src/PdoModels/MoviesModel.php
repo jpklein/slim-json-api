@@ -11,6 +11,12 @@ namespace RestSample\PdoModels;
 // Interface to Movie entity
 class MoviesModel extends \RestSample\PdoModel
 {
+    const RESOURCE_TEMPLATE = [
+        'type'          => 'movies',
+        'id'            => null,
+        'attributes'    => null
+    ];
+
     /**
      * Defines read method
      *
@@ -36,6 +42,6 @@ class MoviesModel extends \RestSample\PdoModel
         }
 
         // Returns JSON resource object
-        return (object) ['type' => 'movies', 'id' => $result['id'], 'attributes' => json_decode($result['attributes'], true)];
+        return self::getObjectFromTemplate(self::RESOURCE_TEMPLATE, $result['id'], json_decode($result['attributes'], true));
     }
 }

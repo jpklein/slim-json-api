@@ -11,6 +11,28 @@ namespace RestSample\PdoModels;
 // Interface to Usermovierating entity. Represents a user's rating of a movie
 class UsermovieratingsModel extends \RestSample\PdoModel
 {
+    const RESOURCE_TEMPLATE = [
+        'type'          => 'usermovieratings',
+        'id'            => null,
+        'attributes'    => [
+            'rating' => null
+        ],
+        'relationships' => [
+            'users'  => [
+                'data' => [
+                    'type' => 'users',
+                    'id'   => null
+                ]
+            ],
+            'movies' => [
+                'data' => [
+                    'type' => 'movies',
+                    'id'   => null
+                ]
+            ]
+        ]
+    ];
+
     /**
      * Defines read method
      * note: user_id should not be mentioned in exception messages
@@ -38,7 +60,7 @@ class UsermovieratingsModel extends \RestSample\PdoModel
         }
 
         // Returns JSON resource object
-        return (object) ['type' => 'usermovieratings', 'id' => $result['id'], 'attributes' => ['rating' => $result['rating']], 'relationships' => ['users' => ['data' => ['type' => 'users', 'id' => $result['user_id']]]], 'movies' => ['data' => ['type' => 'movies', 'id' => $result['movie_id']]]];
+        return self::getObjectFromTemplate(self::RESOURCE_TEMPLATE, $result['id'], $result['rating'], $result['user_id'], $result['movie_id']);
     }
 
     /**
@@ -67,7 +89,7 @@ class UsermovieratingsModel extends \RestSample\PdoModel
         }
 
         // Returns JSON resource object
-        return (object) ['type' => 'usermovieratings', 'id' => $this->connection->lastInsertId(), 'attributes' => ['rating' => $rating], 'relationships' => ['users' => ['data' => ['type' => 'users', 'id' => $user_id]]], 'movies' => ['data' => ['type' => 'movies', 'id' => $movie_id]]];
+        return self::getObjectFromTemplate(self::RESOURCE_TEMPLATE, $this->connection->lastInsertId(), $rating, $user_id, $movie_id);
     }
 
     /**
@@ -97,22 +119,6 @@ class UsermovieratingsModel extends \RestSample\PdoModel
         }
 
         // Returns JSON resource object
-        return (object) ['type' => 'usermovieratings', 'id' => $id, 'attributes' => ['rating' => $rating], 'relationships' => ['users' => ['data' => ['type' => 'users', 'id' => $user_id]]], 'movies' => ['data' => ['type' => 'movies', 'id' => $movie_id]]];
+        return self::getObjectFromTemplate(self::RESOURCE_TEMPLATE, $id, $rating, $user_id, $movie_id);
     }
 }
-
-        // try {
-        //     // Fetches current rating data. Execution may stop here on exception
-        //     $current = $this->getOneByMovieId($movie_id);
-
-        //     // Calculates new total number of ratings
-        //     $new_weight = $current->total_ratings + $rating_weight;
-
-        //     // Calculates new average rating
-        //     $new_rating = (($current->average_rating * $current->total_ratings) + ($movie_rating * $rating_weight)) / $new_weight;
-        // } catch (\Exception $e) {
-        //     // Bubbles up exception from read operation unless no matching record found
-        //     if ($e->getCode() !== static::HTTP_BAD_REQUEST) {
-        //         throw $e;
-        //     }
-        // }
