@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 namespace RestSample\Tests\PdoModels;
 
-class MovieratingsModelTest extends \PHPUnit\Framework\TestCase
+class UsermovieratingsModelTest extends \PHPUnit\Framework\TestCase
 {
     // Includes DBUnit connection for testing
     use \RestSample\Tests\PdoModelTestTrait {
@@ -21,24 +21,24 @@ class MovieratingsModelTest extends \PHPUnit\Framework\TestCase
         $this->traitSetUp();
 
         // Injects PDO connection from DBUnit DefaultConnection object
-        $this->model = new \RestSample\PdoModels\MovieratingsModel($this->getConnection()->getConnection());
+        $this->model = new \RestSample\PdoModels\UsermovieratingsModel($this->getConnection()->getConnection());
     }
 
     // Implements method required by \PHPUnit\DbUnit\TestCaseTrait::setUp()
     public function getDataSet(): \PHPUnit\DbUnit\DataSet\FlatXmlDataSet
     {
-        return $this->createFlatXmlDataSet(dirname(__DIR__).'/_files/movieratings-fixture.xml');
+        return $this->createFlatXmlDataSet(dirname(__DIR__).'/_files/usermovieratings-fixture.xml');
     }
 
-    /** Tests MovieratingsModel::getOneByMovieId() **/
+    /** Tests UsermovieratingsModel::getOneByPrimaryKeys() **/
 
     /**
      * @test
      */
     public function testFetchReturnsExistingRecord()
     {
-        $expected = (object) ['type' => 'movieratings', 'id' => '1', 'attributes' => ['average_rating' => '4', 'total_ratings' => '3'], 'relationships' => ['movies' => ['data' => ['type' => 'movies', 'id' => '1']]]];
-        $this->assertEquals($expected, $this->model->getOneByMovieId(1));
+        $expected = (object) ['type' => 'usermovieratings', 'id' => '1', 'attributes' => ['rating' => '10'], 'relationships' => ['users' => ['data' => ['type' => 'users', 'id' => '1']]], 'movies' => ['data' => ['type' => 'movies', 'id' => '1']]];
+        $this->assertEquals($expected, $this->model->getOneByPrimaryKeys(1, 1));
     }
 
     /**
@@ -47,42 +47,42 @@ class MovieratingsModelTest extends \PHPUnit\Framework\TestCase
     public function testFetchThrowsExceptionForMissingRecord()
     {
         $this->expectException(\Exception::class);
-        $this->model->getOneByMovieId(9);
+        $this->model->getOneByPrimaryKeys(1, 9);
     }
 
     /**
      * @test
      */
-    public function testFetchThrowsExceptionForInvalidMovieId()
+    public function testFetchThrowsExceptionForInvalidPrimaryKeys()
     {
         $this->expectException(\TypeError::class);
-        $this->model->getOneByMovieId('9');
+        $this->model->getOneByPrimaryKeys('1', 1);
     }
 
     /**
      * @test
      */
-    public function testFetchThrowsExceptionForMissingMovieId()
+    public function testFetchThrowsExceptionForMissingPrimaryKeys()
     {
         $this->expectException(\ArgumentCountError::class);
-        $this->model->getOneByMovieId();
+        $this->model->getOneByPrimaryKeys(1);
     }
 
-    /** Tests MovieratingsModel::postNew() **/
+    /** Tests UsermovieratingsModel::postNew() **/
 
     /**
      * @test
      */
     public function testCreateReturnsNewRecord()
     {
-        $expected = (object) ['type' => 'movieratings', 'id' => '2', 'attributes' => ['average_rating' => '5', 'total_ratings' => '1'], 'relationships' => ['movies' => ['data' => ['type' => 'movies', 'id' => '2']]]];
-        $this->assertEquals($expected, $this->model->postNew(2, 5, 1));
+        $expected = (object) ['type' => 'usermovieratings', 'id' => '4', 'attributes' => ['rating' => '8'], 'relationships' => ['users' => ['data' => ['type' => 'users', 'id' => '4']]], 'movies' => ['data' => ['type' => 'movies', 'id' => '1']]];
+        $this->assertEquals($expected, $this->model->postNew(4, 1, 8));
     }
 
     /**
      * @test
      */
-    public function testCreateThrowsExceptionForExistingMovieId()
+    public function testCreateThrowsExceptionForExistingPrimaryKeys()
     {
         $this->expectException(\Exception::class);
         $this->expectExceptionCode(\RestSample\PdoModel::HTTP_CONFLICT);
@@ -95,18 +95,18 @@ class MovieratingsModelTest extends \PHPUnit\Framework\TestCase
     public function testCreateThrowsExceptionForInvalidArguments()
     {
         $this->expectException(\TypeError::class);
-        $this->model->postNew(1, 1, '1');
+        $this->model->postNew(4, 1, '8');
     }
 
-    /** Tests MovieratingsModel::patchByMovieId() **/
+    /** Tests UsermovieratingsModel::patchByPrimaryKeys() **/
 
     /**
      * @test
      */
     public function testUpdateReturnsExistingRecord()
     {
-        $expected = (object) ['type' => 'movieratings', 'id' => '1', 'attributes' => ['average_rating' => '5', 'total_ratings' => '4'], 'relationships' => ['movies' => ['data' => ['type' => 'movies', 'id' => '1']]]];
-        $this->assertEquals($expected, $this->model->patchByMovieId(1, 5, 4));
+        $expected = (object) ['type' => 'usermovieratings', 'id' => '1', 'attributes' => ['rating' => '8'], 'relationships' => ['users' => ['data' => ['type' => 'users', 'id' => '1']]], 'movies' => ['data' => ['type' => 'movies', 'id' => '1']]];
+        $this->assertEquals($expected, $this->model->patchByPrimaryKeys(1, 1, 8));
     }
 
     /**
@@ -115,7 +115,7 @@ class MovieratingsModelTest extends \PHPUnit\Framework\TestCase
     public function testUpdateThrowsExceptionForMissingRecord()
     {
         $this->expectException(\Exception::class);
-        $this->model->patchByMovieId(9, 5, 4);
+        $this->model->patchByPrimaryKeys(9, 1, 8);
     }
 
     /**
@@ -124,7 +124,7 @@ class MovieratingsModelTest extends \PHPUnit\Framework\TestCase
     public function testUpdateThrowsExceptionForInvalidMovieId()
     {
         $this->expectException(\TypeError::class);
-        $this->model->patchByMovieId('1', 5, 4);
+        $this->model->patchByPrimaryKeys('1', 1, 8);
     }
 
     /**
@@ -133,6 +133,6 @@ class MovieratingsModelTest extends \PHPUnit\Framework\TestCase
     public function testUpdateThrowsExceptionForMissingArguments()
     {
         $this->expectException(\ArgumentCountError::class);
-        $this->model->patchByMovieId(5, 4);
+        $this->model->patchByPrimaryKeys(1, 8);
     }
 }
