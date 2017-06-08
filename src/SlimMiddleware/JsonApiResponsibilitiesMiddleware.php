@@ -16,6 +16,16 @@ class JsonApiResponsibilitiesMiddleware
 {
     public function __invoke(Request $request, Response $response, callable $next)
     {
-        return $next($request, $response->withHeader('Content-Type', 'application/vnd.api+json'));
+        // Checks for the JSON API Content-Type header
+        if (($headers = $request->getHeaders()) && isset($headers['Content-Type'])) {
+            foreach ($headers['Content-Type'] as $value) {
+                if ($value === 'application/vnd.api+json') {
+                    // Sets JSON API header in responses
+                    return $next($request, $response->withHeader('Content-Type', 'application/vnd.api+json'));
+                }
+            }
+        }
+
+        throw new \Exception('Bad Request', 400); // JsonApiStatusesTrait::BAD_REQUEST
     }
 }

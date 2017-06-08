@@ -27,26 +27,13 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
      */
     public function testCompliantRequestReturnsUnalteredResponse()
     {
-        $expected = $this->response;
-        // $response = $this->withBody(new Body(fopen('php://temp', 'r+')));
-        // $response->body->write($json = json_encode($data, $encodingOptions));
-
-        // Ensure that the json encoding passed successfully
-        // if ($json === false) {
-        //     throw new \RuntimeException(json_last_error_msg(), json_last_error());
-        // }
-
         $expected = $this->response->withHeader('Content-Type', 'application/vnd.api+json');
-        // if (isset($status)) {
-        //     return $responseWithJson->withStatus($status);
-        // }
-        // return $responseWithJson;
 
-
-// var_dump($expected->getHeaders());die();
         $middleware = new JsonApiResponsibilitiesMiddleware;
+        $actual = $this->request->withHeader('Content-Type', 'application/vnd.api+json');
 
-        $actual = $middleware($this->request, $this->response, function ($req, $res) {
+        $actual = $middleware($actual, $this->response, function ($req, $res) {
+            // @todo Refactors slimMiddlewareCallableMock
             return $res;
         });
 
@@ -56,8 +43,17 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
     /**
      * @test
      */
-    // public function testNoncompliantRequestReturnsErrorResponse()
-    // {
+    public function testNoncompliantRequestThrowsException()
+    {
+        $this->expectExceptionCode(400);
 
-    // }
+        // Invokes middleware
+        // @todo Moves middleware invocation to test setup
+        $actual = new JsonApiResponsibilitiesMiddleware;
+        $actual = $actual($this->request, $this->response, function ($req, $res) {
+            return $res;
+        });
+
+        $this->assertEquals($expected, $actual);
+    }
 }
