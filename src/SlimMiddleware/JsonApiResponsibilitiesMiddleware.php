@@ -16,6 +16,6 @@ class JsonApiResponsibilitiesMiddleware
 {
     public function __invoke(Request $request, Response $response, callable $next)
     {
-        return $next($request, $response);
+        return $next($request, $response->withHeader('Content-Type', 'application/vnd.api+json'));
     }
 }

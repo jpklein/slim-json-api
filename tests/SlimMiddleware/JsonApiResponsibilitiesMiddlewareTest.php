@@ -28,7 +28,22 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
     public function testCompliantRequestReturnsUnalteredResponse()
     {
         $expected = $this->response;
+        // $response = $this->withBody(new Body(fopen('php://temp', 'r+')));
+        // $response->body->write($json = json_encode($data, $encodingOptions));
 
+        // Ensure that the json encoding passed successfully
+        // if ($json === false) {
+        //     throw new \RuntimeException(json_last_error_msg(), json_last_error());
+        // }
+
+        $expected = $this->response->withHeader('Content-Type', 'application/vnd.api+json');
+        // if (isset($status)) {
+        //     return $responseWithJson->withStatus($status);
+        // }
+        // return $responseWithJson;
+
+
+// var_dump($expected->getHeaders());die();
         $middleware = new JsonApiResponsibilitiesMiddleware;
 
         $actual = $middleware($this->request, $this->response, function ($req, $res) {
