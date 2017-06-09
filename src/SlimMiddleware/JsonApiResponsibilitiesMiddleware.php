@@ -18,7 +18,7 @@ class JsonApiResponsibilitiesMiddleware
     public function __invoke(Request $request, Response $response, callable $next)
     {
         // Throws exception for requests missing Content-Type
-        if (!(($headers = $request->getHeaders()) && isset($headers['Content-Type']))) {
+        if (!($headers = $request->getHeaders()) || !isset($headers['Content-Type'])) {
             throw new \Exception('Bad Request', 400);
         }
 
@@ -29,7 +29,21 @@ class JsonApiResponsibilitiesMiddleware
             }
         }
 
-        // @todo Checks JSON API Accept headers
+        // Throws exception if request doesn't accept JSON API media type without parameters
+        if (isset($headers['Accept'])) {
+            $hasValidTerm = null;
+            foreach ($headers['Accept'] as $value) {
+                foreach (explode(',', $value) as $term) {
+                    $term = trim($term);
+                    if (strpos($term, 'application/vnd.api+json') === 0) {
+                        $hasValidTerm = strlen($term) === 24;
+                    }
+                }
+            }
+            if ($hasValidTerm === false) {
+                throw new \Exception('Not Acceptable', 406);
+            }
+        }
 
         // Sets JSON API header in responses
         return $next($request, $response->withHeader('Content-Type', 'application/vnd.api+json'));

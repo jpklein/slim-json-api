@@ -39,16 +39,39 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
      * the header Content-Type: application/vnd.api+json without any
      * media type parameters.
      */
-    public function testCompliantRequestReturnsUnalteredResponse()
+    public function testValidRequestReturnsValidResponse()
     {
-        $expected = $this->responseMock->withHeader('Content-Type', 'application/vnd.api+json');
+        // @todo Moves middleware binding to test setup?
+        $middleware = new JsonApiResponsibilitiesMiddleware;
+
+        $expected = $this->responseMock
+            ->withHeader('Content-Type', 'application/vnd.api+json');
+
+        $request = $this->requestMock
+            ->withHeader('Content-Type', 'application/vnd.api+json');
 
         // Invokes middleware
-        // @todo Moves middleware invocation to test setup?
-        $middleware = new JsonApiResponsibilitiesMiddleware;
-        $actual = $this->requestMock->withHeader('Content-Type', 'application/vnd.api+json');
+        $actual = $middleware($request, $this->responseMock, $this->slimMiddlewareCallableMock);
 
-        $actual = $middleware($actual, $this->responseMock, $this->slimMiddlewareCallableMock);
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     */
+    public function testValidRequestWithAcceptTypeReturnsValidResponse()
+    {
+        $middleware = new JsonApiResponsibilitiesMiddleware;
+
+        $expected = $this->responseMock
+            ->withHeader('Content-Type', 'application/vnd.api+json');
+
+        $request = $this->requestMock
+            ->withHeader('Content-Type', 'application/vnd.api+json')
+            ->withHeader('Accept', 'application/json, application/vnd.api+json');
+
+        // Invokes middleware
+        $actual = $middleware($request, $this->responseMock, $this->slimMiddlewareCallableMock);
 
         $this->assertEquals($expected, $actual);
     }
@@ -58,11 +81,12 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
      */
     public function testRequestWithoutContentTypeThrowsException()
     {
+        $middleware = new JsonApiResponsibilitiesMiddleware;
+
         $this->expectExceptionCode(400);
 
         // Invokes middleware
-        $actual = new JsonApiResponsibilitiesMiddleware;
-        $actual = $actual($this->requestMock, $this->responseMock, $this->slimMiddlewareCallableMock);
+        $middleware($this->requestMock, $this->responseMock, $this->slimMiddlewareCallableMock);
     }
 
     /**
@@ -73,13 +97,16 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
      */
     public function testRequestWithContentTypeParametersThrowsException()
     {
+        $middleware = new JsonApiResponsibilitiesMiddleware;
+
         $this->expectExceptionCode(415);
 
-        // Invokes middleware with extraneous media type parameters
-        $middleware = new JsonApiResponsibilitiesMiddleware;
-        $actual = $this->requestMock->withHeader('Content-Type', 'application/vnd.api+json; charset=utf-8');
+        // Adds extraneous media type parameter to content type
+        $request = $this->requestMock
+            ->withHeader('Content-Type', 'application/vnd.api+json; charset=utf-8');
 
-        $actual = $middleware($actual, $this->responseMock, $this->slimMiddlewareCallableMock);
+        // Invokes middleware
+        $middleware($request, $this->responseMock, $this->slimMiddlewareCallableMock);
     }
 
     /**
@@ -89,17 +116,19 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
      * instances of that media type are modified with media type
      * parameters.
      */
-    // public function testRequestWithoutBasicAcceptTypeThrowsException()
-    // {
-    //     $this->expectExceptionCode(406);
+    public function testRequestWithoutValidAcceptTypeThrowsException()
+    {
+        $middleware = new JsonApiResponsibilitiesMiddleware;
 
-    //     // Invokes middleware with extraneous media type parameters
-    //     $middleware = new JsonApiResponsibilitiesMiddleware;
-    //     $actual = $this->requestMock
-    //         ->withHeader('Content-Type', 'application/vnd.api+json')
-    //         ->withHeader('Accept', 'application/vnd.api+json; charset=utf-8')
-    //         ->withHeader('Accept', 'text/html, application/json, application/vnd.api+json;q=0.9');
+        $this->expectExceptionCode(406);
 
-    //     $actual = $middleware($actual, $this->responseMock, $this->slimMiddlewareCallableMock);
-    // }
+        // Adds extraneous media type parameter to accept
+        $request = $this->requestMock
+            ->withHeader('Content-Type', 'application/vnd.api+json')
+            // NB value overwritten on subsequent calls to set Accept
+            ->withHeader('Accept', 'text/html, application/json, application/vnd.api+json;q=0.9');
+
+        // Invokes middleware
+        $middleware($request, $this->responseMock, $this->slimMiddlewareCallableMock);
+    }
 }
