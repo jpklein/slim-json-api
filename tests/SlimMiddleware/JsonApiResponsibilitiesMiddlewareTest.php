@@ -89,17 +89,17 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
      * instances of that media type are modified with media type
      * parameters.
      */
-    public function testRequestWithoutBasicAcceptTypeThrowsException()
-    {
-        $this->expectExceptionCode(406);
+    // public function testRequestWithoutBasicAcceptTypeThrowsException()
+    // {
+    //     $this->expectExceptionCode(406);
 
-        // Invokes middleware with extraneous media type parameters
-        $middleware = new JsonApiResponsibilitiesMiddleware;
-        $actual = $this->requestMock
-            ->withHeader('Content-Type', 'application/vnd.api+json')
-            ->withHeader('Accept', 'application/vnd.api+json; charset=utf-8')
-            ->withHeader('Accept', 'text/html, application/json, application/vnd.api+json;q=0.9');
+    //     // Invokes middleware with extraneous media type parameters
+    //     $middleware = new JsonApiResponsibilitiesMiddleware;
+    //     $actual = $this->requestMock
+    //         ->withHeader('Content-Type', 'application/vnd.api+json')
+    //         ->withHeader('Accept', 'application/vnd.api+json; charset=utf-8')
+    //         ->withHeader('Accept', 'text/html, application/json, application/vnd.api+json;q=0.9');
 
-        $actual = $middleware($actual, $this->responseMock, $this->slimMiddlewareCallableMock);
-    }
+    //     $actual = $middleware($actual, $this->responseMock, $this->slimMiddlewareCallableMock);
+    // }
 }
