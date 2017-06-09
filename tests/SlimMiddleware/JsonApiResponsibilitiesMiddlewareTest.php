@@ -30,7 +30,7 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
     {
         $this->environmentMock = Environment::mock();
         $this->requestMock = Request::createFromEnvironment($this->environmentMock);
-        $this->responseMock = new Response();
+        $this->responseMock  = new Response();
     }
 
     /**
@@ -40,6 +40,8 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
     {
         $expected = $this->responseMock->withHeader('Content-Type', 'application/vnd.api+json');
 
+        // Invokes middleware
+        // @todo Moves middleware invocation to test setup?
         $middleware = new JsonApiResponsibilitiesMiddleware;
         $actual = $this->requestMock->withHeader('Content-Type', 'application/vnd.api+json');
 
@@ -51,15 +53,12 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
     /**
      * @test
      */
-    public function testNoncompliantRequestThrowsException()
+    public function testRequestWithoutContentTypeThrowsException()
     {
         $this->expectExceptionCode(400);
 
         // Invokes middleware
-        // @todo Moves middleware invocation to test setup
         $actual = new JsonApiResponsibilitiesMiddleware;
         $actual = $actual($this->requestMock, $this->responseMock, $this->slimMiddlewareCallableMock);
-
-        $this->assertEquals($expected, $actual);
     }
 }

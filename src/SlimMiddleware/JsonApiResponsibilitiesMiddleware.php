@@ -26,6 +26,7 @@ class JsonApiResponsibilitiesMiddleware
             }
         }
 
+        // Throws exception if request is missing Content-Type
         throw new \Exception('Bad Request', 400); // JsonApiStatusesTrait::BAD_REQUEST
     }
 }
