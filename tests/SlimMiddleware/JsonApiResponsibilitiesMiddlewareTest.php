@@ -15,11 +15,22 @@ use Slim\Http\Request;
 
 class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
 {
+    public function __construct()
+    {
+        parent::__construct();
+
+        // Mocks callable function for Slim middleware execution
+        $this->slimMiddlewareCallableMock = static function (Request $req, Response $res) {
+            // Returns unaltered Response
+            return $res;
+        };
+    }
+
     public function setUp()
     {
-        $this->environment = Environment::mock();
-        $this->request = Request::createFromEnvironment($this->environment);
-        $this->response = new Response();
+        $this->environmentMock = Environment::mock();
+        $this->requestMock = Request::createFromEnvironment($this->environmentMock);
+        $this->responseMock = new Response();
     }
 
     /**
@@ -27,15 +38,12 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
      */
     public function testCompliantRequestReturnsUnalteredResponse()
     {
-        $expected = $this->response->withHeader('Content-Type', 'application/vnd.api+json');
+        $expected = $this->responseMock->withHeader('Content-Type', 'application/vnd.api+json');
 
         $middleware = new JsonApiResponsibilitiesMiddleware;
-        $actual = $this->request->withHeader('Content-Type', 'application/vnd.api+json');
+        $actual = $this->requestMock->withHeader('Content-Type', 'application/vnd.api+json');
 
-        $actual = $middleware($actual, $this->response, function ($req, $res) {
-            // @todo Refactors slimMiddlewareCallableMock
-            return $res;
-        });
+        $actual = $middleware($actual, $this->responseMock, $this->slimMiddlewareCallableMock);
 
         $this->assertEquals($expected, $actual);
     }
@@ -50,9 +58,7 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
         // Invokes middleware
         // @todo Moves middleware invocation to test setup
         $actual = new JsonApiResponsibilitiesMiddleware;
-        $actual = $actual($this->request, $this->response, function ($req, $res) {
-            return $res;
-        });
+        $actual = $actual($this->requestMock, $this->responseMock, $this->slimMiddlewareCallableMock);
 
         $this->assertEquals($expected, $actual);
     }
