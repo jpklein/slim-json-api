@@ -29,7 +29,7 @@ class JsonApiResponsibilitiesMiddleware
             }
         }
 
-        // Throws exception if request doesn't accept JSON API media type without parameters
+        // Throws exception if client only accepts JSON API media type with parameters
         if (isset($headers['Accept'])) {
             $hasValidTerm = null;
             foreach ($headers['Accept'] as $value) {
