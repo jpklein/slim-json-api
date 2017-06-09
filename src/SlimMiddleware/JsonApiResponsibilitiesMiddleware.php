@@ -19,9 +19,14 @@ class JsonApiResponsibilitiesMiddleware
         // Checks for the JSON API Content-Type header
         if (($headers = $request->getHeaders()) && isset($headers['Content-Type'])) {
             foreach ($headers['Content-Type'] as $value) {
-                if ($value === 'application/vnd.api+json') {
-                    // Sets JSON API header in responses
-                    return $next($request, $response->withHeader('Content-Type', 'application/vnd.api+json'));
+                if (strpos($value, 'application/vnd.api+json') === 0) {
+                    if ($value === 'application/vnd.api+json') {
+                        // Sets JSON API header in responses
+                        return $next($request, $response->withHeader('Content-Type', 'application/vnd.api+json'));
+                    }
+
+                    // Throws exception if request specifies media type parameters
+                    throw new \Exception('Unsupported Media Type', 415);
                 }
             }
         }

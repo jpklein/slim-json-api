@@ -61,4 +61,18 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
         $actual = new JsonApiResponsibilitiesMiddleware;
         $actual = $actual($this->requestMock, $this->responseMock, $this->slimMiddlewareCallableMock);
     }
+
+    /**
+     * @test
+     */
+    public function testRequestWithMediaTypeParametersThrowsException()
+    {
+        $this->expectExceptionCode(415);
+
+        // Invokes middleware with extraneous media type parameters
+        $middleware = new JsonApiResponsibilitiesMiddleware;
+        $actual = $this->requestMock->withHeader('Content-Type', 'application/vnd.api+json; charset=utf-8');
+
+        $actual = $middleware($actual, $this->responseMock, $this->slimMiddlewareCallableMock);
+    }
 }
