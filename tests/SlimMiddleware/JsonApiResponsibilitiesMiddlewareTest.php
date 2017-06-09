@@ -35,6 +35,9 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
+     * Servers MUST send all JSON API data in response documents with
+     * the header Content-Type: application/vnd.api+json without any
+     * media type parameters.
      */
     public function testCompliantRequestReturnsUnalteredResponse()
     {
@@ -64,14 +67,38 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
+     * Servers MUST respond with a 415 Unsupported Media Type status
+     * code if a request specifies the header Content-Type: application/
+     * vnd.api+json with any media type parameters.
      */
-    public function testRequestWithMediaTypeParametersThrowsException()
+    public function testRequestWithContentTypeParametersThrowsException()
     {
         $this->expectExceptionCode(415);
 
         // Invokes middleware with extraneous media type parameters
         $middleware = new JsonApiResponsibilitiesMiddleware;
         $actual = $this->requestMock->withHeader('Content-Type', 'application/vnd.api+json; charset=utf-8');
+
+        $actual = $middleware($actual, $this->responseMock, $this->slimMiddlewareCallableMock);
+    }
+
+    /**
+     * @test
+     * Servers MUST respond with a 406 Not Acceptable status code if a
+     * request’s Accept header contains the JSON API media type and all
+     * instances of that media type are modified with media type
+     * parameters.
+     */
+    public function testRequestWithoutBasicAcceptTypeThrowsException()
+    {
+        $this->expectExceptionCode(406);
+
+        // Invokes middleware with extraneous media type parameters
+        $middleware = new JsonApiResponsibilitiesMiddleware;
+        $actual = $this->requestMock
+            ->withHeader('Content-Type', 'application/vnd.api+json')
+            ->withHeader('Accept', 'application/vnd.api+json; charset=utf-8')
+            ->withHeader('Accept', 'text/html, application/json, application/vnd.api+json;q=0.9');
 
         $actual = $middleware($actual, $this->responseMock, $this->slimMiddlewareCallableMock);
     }
