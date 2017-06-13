@@ -20,5 +20,8 @@
     "post-update-cmd": [
       "PhantomInstaller\\Installer::installPhantomJS"
     ]
+  },
+  "config": {
+    "bin-dir": "bin"
   }
 }
