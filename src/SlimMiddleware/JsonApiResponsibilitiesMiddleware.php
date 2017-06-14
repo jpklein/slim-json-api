@@ -19,21 +19,21 @@ class JsonApiResponsibilitiesMiddleware
     public function __invoke(Request $request, Response $response, callable $next)
     {
         // Throws exception for requests missing Content-Type
-        if (!($headers = $request->getHeaders()) || !isset($headers['Content-Type'])) {
+        if (!($headers = $request->getHeaders()) || !isset($headers['HTTP_CONTENT_TYPE'])) {
             throw new Exception('Bad Request', 400);
         }
 
         // Throws exception if JSON API media type has extra parameters
-        foreach ($headers['Content-Type'] as $value) {
+        foreach ($headers['HTTP_CONTENT_TYPE'] as $value) {
             if (strpos($value, 'application/vnd.api+json') === 0 && strlen($value) !== 24) {
                 throw new Exception('Unsupported Media Type', 415);
             }
         }
 
         // Throws exception if client only accepts JSON API media type with parameters
-        if (isset($headers['Accept'])) {
+        if (isset($headers['HTTP_ACCEPT'])) {
             $hasValidTerm = null;
-            foreach ($headers['Accept'] as $value) {
+            foreach ($headers['HTTP_ACCEPT'] as $value) {
                 foreach (explode(',', $value) as $term) {
                     $term = trim($term);
                     if (strpos($term, 'application/vnd.api+json') === 0) {

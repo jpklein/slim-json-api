@@ -43,4 +43,34 @@ class AppTest extends \PHPUnit\Framework\TestCase
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
     }
+
+    /**
+     * @test
+     */
+    public function testRequestForUndefinedEndpointReturnsException()
+    {
+        // Sets the Content-Type header
+        $this->client->setClient(new \GuzzleHttp\Client([
+            'headers' => ['Content-Type' => 'application/vnd.api+json']
+        ]));
+
+        // Sends the request
+        $this->client->request('GET', 'http://localhost:8080/movies/1');
+        $response = $this->client->getResponse();
+var_dump($response);
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares page contents
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+    }
 }
