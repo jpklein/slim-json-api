@@ -9,8 +9,10 @@ declare(strict_types=1);
 namespace RestSample;
 
 // Aliases psr-7 objects
-use \Psr\Http\Message\ServerRequestInterface as Request;
-use \Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
+use RestSample\SlimHandlers\JsonApiErrorHandler;
+use RestSample\SlimMiddleware\JsonApiResponsibilitiesMiddleware as JsonApiMiddleware;
 
 class App
 {
@@ -66,6 +68,15 @@ class App
 
         // Establishes connection to mysql db
         $dic['db'] = $this->getDbConnection();
+
+        // Overrides default Slim error handler
+        $dic['errorHandler'] = function ($c) {
+            return new JsonApiErrorHandler;
+        };
+
+        // Adds middleware for JSON API content negotiation
+        $middleware = new JsonApiMiddleware;
+        $slim->add($middleware);
 
         // Retrieves movie data given a unique ID
         $slim->get('/movies/{id}', function (Request $request, Response $response) {

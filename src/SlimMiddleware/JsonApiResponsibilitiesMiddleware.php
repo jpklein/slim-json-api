@@ -11,6 +11,7 @@ namespace RestSample\SlimMiddleware;
 // Aliases psr-7 objects
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use RestSample\Exceptions\JsonApiException as Exception;
 
 class JsonApiResponsibilitiesMiddleware
 {
@@ -19,13 +20,13 @@ class JsonApiResponsibilitiesMiddleware
     {
         // Throws exception for requests missing Content-Type
         if (!($headers = $request->getHeaders()) || !isset($headers['Content-Type'])) {
-            throw new \Exception('Bad Request', 400);
+            throw new Exception('Bad Request', 400);
         }
 
         // Throws exception if JSON API media type has extra parameters
         foreach ($headers['Content-Type'] as $value) {
             if (strpos($value, 'application/vnd.api+json') === 0 && strlen($value) !== 24) {
-                throw new \Exception('Unsupported Media Type', 415);
+                throw new Exception('Unsupported Media Type', 415);
             }
         }
 
@@ -41,7 +42,7 @@ class JsonApiResponsibilitiesMiddleware
                 }
             }
             if ($hasValidTerm === false) {
-                throw new \Exception('Not Acceptable', 406);
+                throw new Exception('Not Acceptable', 406);
             }
         }
 
