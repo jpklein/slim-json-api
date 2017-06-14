@@ -47,6 +47,6 @@ class JsonApiResponsibilitiesMiddleware
         }
 
         // Sets JSON API header in responses
-        return $next($request, $response->withHeader('Content-Type', 'application/vnd.api+json'));
+        return $next($request, $response)->withHeader('Content-Type', 'application/vnd.api+json');
     }
 }
