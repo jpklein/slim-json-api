@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace RestSample\PdoModels;
 
+use RestSample\Exceptions\JsonApiException as Exception;
+
 // Interface to Usermovierating entity. Represents a user's rating of a movie
 class UsermovieratingsModel extends \RestSample\PdoModel
 {
@@ -48,7 +50,7 @@ class UsermovieratingsModel extends \RestSample\PdoModel
 
         // Throws exception on connection error
         if (!$statement->execute([$user_id, $movie_id])) {
-            throw new \Exception('Error fetching UserMovieRating by Movie ID', static::HTTP_INTERNAL_SERVER_ERROR);
+            throw new Exception('Error fetching UserMovieRating by Movie ID', static::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         // Populates array
@@ -56,7 +58,7 @@ class UsermovieratingsModel extends \RestSample\PdoModel
 
         // Throws exception when array contains no data
         if (!$result || empty(array_filter($result))) {
-            throw new \Exception('No UserMovieRating for Movie ID '.$movie_id, static::HTTP_BAD_REQUEST);
+            throw new Exception('No UserMovieRating for Movie ID '.$movie_id, static::HTTP_BAD_REQUEST);
         }
 
         // Returns JSON resource object
@@ -80,12 +82,12 @@ class UsermovieratingsModel extends \RestSample\PdoModel
         try {
             $result = $statement->execute([$user_id, $movie_id, $rating]);
         } catch (\Exception $e) {
-            throw new \Exception('UserMovieRating already exists for Movie ID '.$movie_id, static::HTTP_CONFLICT);
+            throw new Exception('UserMovieRating already exists for Movie ID '.$movie_id, static::HTTP_CONFLICT);
         }
 
         // Throws exception on connection error
         if (!$result) {
-            throw new \Exception('Error creating UserMovieRating for Movie ID '.$movie_id, static::HTTP_INTERNAL_SERVER_ERROR);
+            throw new Exception('Error creating UserMovieRating for Movie ID '.$movie_id, static::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         // Returns JSON resource object
@@ -110,12 +112,12 @@ class UsermovieratingsModel extends \RestSample\PdoModel
         try {
             $result = $statement->execute([$rating, $user_id, $movie_id]);
         } catch (\Exception $e) {
-            throw new \Exception('Error updating UserMovieRating for Movie ID '.$movie_id, static::HTTP_INTERNAL_SERVER_ERROR);
+            throw new Exception('Error updating UserMovieRating for Movie ID '.$movie_id, static::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         // Throws exception when update fails
         if (!($id = $this->connection->lastInsertId())) {
-            throw new \Exception('No UserMovieRating for Movie ID '.$movie_id, static::HTTP_BAD_REQUEST);
+            throw new Exception('No UserMovieRating for Movie ID '.$movie_id, static::HTTP_BAD_REQUEST);
         }
 
         // Returns JSON resource object

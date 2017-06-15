@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace RestSample\PdoModels;
 
+use RestSample\Exceptions\JsonApiException as Exception;
+
 // Interface to Movie entity
 class MoviesModel extends \RestSample\PdoModel
 {
@@ -30,7 +32,7 @@ class MoviesModel extends \RestSample\PdoModel
 
         // Throws exception on connection error
         if (!$statement->execute([$id])) {
-            throw new \Exception('Error fetching Movie by ID', static::HTTP_INTERNAL_SERVER_ERROR);
+            throw new Exception('Error fetching Movie by ID', static::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         // Populates array
@@ -38,7 +40,7 @@ class MoviesModel extends \RestSample\PdoModel
 
         // Throws exception when array contains no data
         if (!$result || empty(array_filter($result))) {
-            throw new \Exception('No Movie for ID '.$id, static::HTTP_BAD_REQUEST);
+            throw new Exception('No Movie for ID '.$id, static::HTTP_BAD_REQUEST);
         }
 
         // Returns JSON resource object

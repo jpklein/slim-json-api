@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace RestSample\PdoModels;
 
+use RestSample\Exceptions\JsonApiException as Exception;
+
 // Interface to Movierating entity
 class MovieratingsModel extends \RestSample\PdoModel
 {
@@ -41,7 +43,7 @@ class MovieratingsModel extends \RestSample\PdoModel
 
         // Throws exception on connection error
         if (!$statement->execute([$movie_id])) {
-            throw new \Exception('Error fetching MovieRating by Movie ID', static::HTTP_INTERNAL_SERVER_ERROR);
+            throw new Exception('Error fetching MovieRating by Movie ID', static::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         // Populates array
@@ -49,7 +51,7 @@ class MovieratingsModel extends \RestSample\PdoModel
 
         // Throws exception when array contains no data
         if (!$result || empty(array_filter($result))) {
-            throw new \Exception('No MovieRating for Movie ID '.$movie_id, static::HTTP_BAD_REQUEST);
+            throw new Exception('No MovieRating for Movie ID '.$movie_id, static::HTTP_BAD_REQUEST);
         }
 
         // Returns JSON resource object
@@ -73,12 +75,12 @@ class MovieratingsModel extends \RestSample\PdoModel
         try {
             $result = $statement->execute([$movie_id, $average_rating, $total_ratings]);
         } catch (\Exception $e) {
-            throw new \Exception('MovieRating already exists for Movie ID '.$movie_id, static::HTTP_CONFLICT);
+            throw new Exception('MovieRating already exists for Movie ID '.$movie_id, static::HTTP_CONFLICT);
         }
 
         // Throws exception on connection error
         if (!$result) {
-            throw new \Exception('Error creating MovieRating for Movie ID '.$movie_id, static::HTTP_INTERNAL_SERVER_ERROR);
+            throw new Exception('Error creating MovieRating for Movie ID '.$movie_id, static::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         // Returns JSON resource object
@@ -103,12 +105,12 @@ class MovieratingsModel extends \RestSample\PdoModel
         try {
             $result = $statement->execute([$average_rating, $total_ratings, $movie_id]);
         } catch (\Exception $e) {
-            throw new \Exception('Error updating MovieRating for Movie ID '.$movie_id, static::HTTP_INTERNAL_SERVER_ERROR);
+            throw new Exception('Error updating MovieRating for Movie ID '.$movie_id, static::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         // Throws exception when update fails
         if (!($id = $this->connection->lastInsertId())) {
-            throw new \Exception('No MovieRating for Movie ID '.$movie_id, static::HTTP_BAD_REQUEST);
+            throw new Exception('No MovieRating for Movie ID '.$movie_id, static::HTTP_BAD_REQUEST);
         }
 
         // Returns JSON resource object
