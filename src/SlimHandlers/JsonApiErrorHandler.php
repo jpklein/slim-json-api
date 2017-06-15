@@ -32,7 +32,6 @@ class JsonApiErrorHandler extends \Slim\Handlers\Error
 
         $this->writeToErrorLog($exception);
 
-        $code = $exception->getCode();
         $body = [
             'errors' => [
                 'detail' => $exception->getMessage()
@@ -40,8 +39,7 @@ class JsonApiErrorHandler extends \Slim\Handlers\Error
         ];
 
         return $response
-            ->withStatus($code)
-            ->withJson($body, $code)
+            ->withJson($body, $exception->getCode())
             ->withHeader('Content-Type', 'application/vnd.api+json');
     }
 }
