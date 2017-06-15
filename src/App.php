@@ -113,12 +113,14 @@ class App
             $data = [];
             foreach ($request->getParsedBody() as $key => $value) {
                 switch ($key) {
-                    case 'user_id':
+                    case 'movie_id':
                         // Falls through to test integer value input
-                    case 'movie_rating':
+                    case 'average_rating':
+                        // Falls through to test integer value input
+                    case 'total_ratings':
                         // Ignores value unless it passes validation
                         if (!is_bool($value) && ($value = filter_var($value, FILTER_VALIDATE_INT)) !== false) {
-                            $data[$key] = $value;
+                            $data[$key] = (int) $value;
                         }
                         break;
                 }
@@ -126,7 +128,7 @@ class App
             try {
                 // Calls model set method
                 $model = new PdoModels\MovieratingsModel($this->db);
-                $result = $model->setMovieRatingById((int) $request->getAttribute('movie_id'), (int) $data['movie_rating']);
+                $result = $model->postNew($data['movie_id'], $data['average_rating'], $data['total_ratings']);
             } catch (\Exception $e) {
                 return $response->withJson($e->getMessage(), $e->getCode());
             }
