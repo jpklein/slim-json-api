@@ -17,6 +17,11 @@ class AppTest extends \PHPUnit\Framework\TestCase
         parent::__construct();
 
         $this->client = new Client();
+
+        // Sets the Content-Type header required by JSON API spec
+        $this->client->setClient(new \GuzzleHttp\Client([
+            'headers' => ['Content-Type' => 'application/vnd.api+json']
+        ]));
     }
 
     /**
@@ -24,6 +29,9 @@ class AppTest extends \PHPUnit\Framework\TestCase
      */
     public function testRequestWithoutContentTypeReturnsException()
     {
+        // Removes the Content-Type header
+        $this->client->setClient(new \GuzzleHttp\Client());
+
         // Sends the request
         $this->client->request('GET', 'http://localhost:8080');
         $response = $this->client->getResponse();
@@ -42,6 +50,11 @@ class AppTest extends \PHPUnit\Framework\TestCase
         $expected = '{"errors":{"detail":"Bad Request"}}';
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
+
+        // Resets the Content-Type header
+        $this->client->setClient(new \GuzzleHttp\Client([
+            'headers' => ['Content-Type' => 'application/vnd.api+json']
+        ]));
     }
 
     /**
@@ -50,11 +63,6 @@ class AppTest extends \PHPUnit\Framework\TestCase
      */
     public function testRequestForUndefinedEndpointReturnsException()
     {
-        // Sets the Content-Type header
-        $this->client->setClient(new \GuzzleHttp\Client([
-            'headers' => ['Content-Type' => 'application/vnd.api+json']
-        ]));
-
         // Sends the request
         $this->client->request('GET', 'http://localhost:8080');
         $response = $this->client->getResponse();
@@ -63,28 +71,40 @@ class AppTest extends \PHPUnit\Framework\TestCase
         $expected = 404;
         $actual = $response->getStatus();
         $this->assertEquals($expected, $actual);
+    }
+
+    /** Tests \movies endpoint **/
+
+    /**
+     * @test
+     */
+    public function testGetRequestToInvalidMoviesEndpointReturnsError()
+    {
+        // Sends the request
+        $this->client->request('GET', 'http://localhost:8080/movies/9');
+        $response = $this->client->getResponse();
+
+        // Compares HTTP status code
+        $expected = 404;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
 
         // Compares Content-Type header
-        // $expected = 'application/vnd.api+json';
-        // $actual = $response->getHeaders()['Content-Type'][0];
-        // $this->assertEquals($expected, $actual);
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
 
         // Compares page contents
-        // $expected = '{"errors":{"detail":"Not Found"}}';
-        // $actual = $response->getContent();
-        // $this->assertEquals($expected, $actual);
+        $expected = '{"errors":{"detail":"No Movie for ID 9"}}';
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
     }
 
     /**
      * @test
      */
-    public function testGetRequestToMoviesEndpointReturnsData()
+    public function testGetRequestToValidMoviesEndpointReturnsData()
     {
-        // Sets the Content-Type header
-        $this->client->setClient(new \GuzzleHttp\Client([
-            'headers' => ['Content-Type' => 'application/vnd.api+json']
-        ]));
-
         // Sends the request
         $this->client->request('GET', 'http://localhost:8080/movies/1');
         $response = $this->client->getResponse();
@@ -105,17 +125,13 @@ class AppTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, $actual);
     }
 
+    /** Tests \movieratings endpoint **/
 
     /**
      * @test
      */
     public function testGetRequestToMovieratingsEndpointReturnsData()
     {
-        // Sets the Content-Type header
-        $this->client->setClient(new \GuzzleHttp\Client([
-            'headers' => ['Content-Type' => 'application/vnd.api+json']
-        ]));
-
         // Sends the request
         $this->client->request('GET', 'http://localhost:8080/movieratings/1');
         $response = $this->client->getResponse();
