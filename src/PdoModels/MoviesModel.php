@@ -40,7 +40,7 @@ class MoviesModel extends \RestSample\PdoModel
 
         // Throws exception when array contains no data
         if (!$result || empty(array_filter($result))) {
-            throw new Exception('No Movie for ID '.$id, static::HTTP_BAD_REQUEST);
+            throw new Exception('No Movie for ID '.$id, static::HTTP_NOT_FOUND);
         }
 
         // Returns JSON resource object

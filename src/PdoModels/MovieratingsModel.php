@@ -51,7 +51,7 @@ class MovieratingsModel extends \RestSample\PdoModel
 
         // Throws exception when array contains no data
         if (!$result || empty(array_filter($result))) {
-            throw new Exception('No MovieRating for Movie ID '.$movie_id, static::HTTP_BAD_REQUEST);
+            throw new Exception('No MovieRating for Movie ID '.$movie_id, static::HTTP_NOT_FOUND);
         }
 
         // Returns JSON resource object
@@ -110,7 +110,7 @@ class MovieratingsModel extends \RestSample\PdoModel
 
         // Throws exception when update fails
         if (!($id = $this->connection->lastInsertId())) {
-            throw new Exception('No MovieRating for Movie ID '.$movie_id, static::HTTP_BAD_REQUEST);
+            throw new Exception('No MovieRating for Movie ID '.$movie_id, static::HTTP_NOT_FOUND);
         }
 
         // Returns JSON resource object
