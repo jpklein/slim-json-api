@@ -48,7 +48,7 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
             ->withHeader('Content-Type', 'application/vnd.api+json');
 
         $request = $this->requestMock
-            ->withHeader('Content-Type', 'application/vnd.api+json');
+            ->withHeader('HTTP_CONTENT_TYPE', 'application/vnd.api+json');
 
         // Invokes middleware
         $actual = $middleware($request, $this->responseMock, $this->slimMiddlewareCallableMock);
@@ -67,8 +67,8 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
             ->withHeader('Content-Type', 'application/vnd.api+json');
 
         $request = $this->requestMock
-            ->withHeader('Content-Type', 'application/vnd.api+json')
-            ->withHeader('Accept', 'application/json, application/vnd.api+json');
+            ->withHeader('HTTP_CONTENT_TYPE', 'application/vnd.api+json')
+            ->withHeader('HTTP_ACCEPT', 'application/json, application/vnd.api+json');
 
         // Invokes middleware
         $actual = $middleware($request, $this->responseMock, $this->slimMiddlewareCallableMock);
@@ -103,7 +103,7 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
 
         // Adds extraneous media type parameter to content type
         $request = $this->requestMock
-            ->withHeader('Content-Type', 'application/vnd.api+json; charset=utf-8');
+            ->withHeader('HTTP_CONTENT_TYPE', 'application/vnd.api+json; charset=utf-8');
 
         // Invokes middleware
         $middleware($request, $this->responseMock, $this->slimMiddlewareCallableMock);
@@ -124,9 +124,9 @@ class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
 
         // Adds extraneous media type parameter to accept
         $request = $this->requestMock
-            ->withHeader('Content-Type', 'application/vnd.api+json')
+            ->withHeader('HTTP_CONTENT_TYPE', 'application/vnd.api+json')
             // NB value overwritten on subsequent calls to set Accept
-            ->withHeader('Accept', 'text/html, application/json, application/vnd.api+json;q=0.9');
+            ->withHeader('HTTP_ACCEPT', 'text/html, application/json, application/vnd.api+json;q=0.9');
 
         // Invokes middleware
         $middleware($request, $this->responseMock, $this->slimMiddlewareCallableMock);
