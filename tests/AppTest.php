@@ -184,7 +184,7 @@ class AppTest extends \PHPUnit\Framework\TestCase
      */
     public function testInvalidPostRequestToMovieratingsEndpointReturnsError()
     {
-        // Sends the request with JSON data in POST
+        // Sends the request with invalid POST data
         $this->client->request('POST', 'http://localhost:8080/movieratings', ['movie_id' => '2', 'average_rating' => '5', 'total_ratings' => '1']);
         $response = $this->client->getResponse();
 
@@ -225,6 +225,34 @@ class AppTest extends \PHPUnit\Framework\TestCase
 
         // Compares HTTP status code
         $expected = 409;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     */
+    public function testPostRequestToValidMovieratingsEndpointReturnsData()
+    {
+        // Resets auto increment on the movieratings table
+        (new PdoModels\MovieratingsModelTest)->setUp();
+
+        // Sends the request with JSON data in POST
+        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"type":"movieratings","attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}}');
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $expected = '{"data":[{"type":"movieratings","id":"2","attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}]}';
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 200;
         $actual = $response->getStatus();
         $this->assertEquals($expected, $actual);
     }

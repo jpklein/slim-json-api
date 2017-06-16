@@ -84,7 +84,7 @@ class MovieratingsModel extends \RestSample\PdoModel
         }
 
         // Returns JSON resource object
-        return self::getObjectFromTemplate(self::RESOURCE_TEMPLATE, $this->connection->lastInsertId(), $average_rating, $total_ratings, $movie_id);
+        return self::getObjectFromTemplate(self::RESOURCE_TEMPLATE, $this->connection->lastInsertId(), (string) $average_rating, (string) $total_ratings, (string) $movie_id);
     }
 
     /**
