@@ -11,6 +11,7 @@ namespace RestSample;
 // Aliases psr-7 objects
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use RestSample\Exceptions\JsonApiException as Exception;
 use RestSample\SlimHandlers\JsonApiErrorHandler;
 use RestSample\SlimMiddleware\JsonApiResponsibilitiesMiddleware as JsonApiMiddleware;
 
@@ -99,28 +100,51 @@ class App
         });
 
         // Accepts movie rating per user
-        $slim->post('/movieratings/{movie_id}', function (Request $request, Response $response) {
-            // Sanitizes inputs
-            // @todo Limits spam requests to endpoint
-            $data = [];
-            foreach ($request->getParsedBody() as $key => $value) {
-                switch ($key) {
-                    case 'movie_id':
+        // @todo Limits spam requests to endpoint
+        $slim->post('/movieratings', function (Request $request, Response $response) {
+            $params = [];
+
+            // Errors if array members referenced below are undefined
+            set_error_handler(function () {
+                throw new Exception('Bad Request', 400);
+            });
+
+            // Ensures correct input format
+            $data = $request->getParsedBody()['data'];
+            $subdata = $data['relationships']['movies']['data'];
+            if ($data['type'] !== 'movieratings' || $subdata['type'] !== 'movies') {
+                throw new \Exception();
+            }
+
+            // Sanitizes input parameters
+            foreach ($data['attributes'] + $subdata as $k => $v) {
+                switch ($k) {
+                    case 'id':
+                        $k = 'movie_id';
                         // Falls through to test integer value input
                     case 'average_rating':
                         // Falls through to test integer value input
                     case 'total_ratings':
                         // Ignores value unless it passes validation
-                        if (!is_bool($value) && ($value = filter_var($value, FILTER_VALIDATE_INT)) !== false) {
-                            $data[$key] = (int) $value;
+                        if (!is_bool($v) && ($v = filter_var($v, FILTER_VALIDATE_INT)) !== false) {
+                            $params[$k] = (int) $v;
                         }
                         break;
                 }
             }
+
+            // Validates required parameters
+            if (!($params['movie_id'] && $params['average_rating'] && $params['total_ratings'])) {
+                throw new \Exception();
+            }
+
+            // Allows other errors besides 400 to be returned
+            restore_error_handler();
+
             // Calls model set method
             $model = new PdoModels\MovieratingsModel($this->db);
             // @throws JsonApiException
-            $result = $model->postNew($data['movie_id'], $data['average_rating'], $data['total_ratings']);
+            $result = $model->postNew($params['movie_id'], $params['average_rating'], $params['total_ratings']);
             // Formats output
             return $response->withJson(['data' => [$result]]);
         });
