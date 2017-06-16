@@ -80,28 +80,20 @@ class App
 
         // Retrieves movie data given a unique ID
         $slim->get('/movies/{id}', function (Request $request, Response $response) {
-            try {
-                // Calls model get method
-                $model = new PdoModels\MoviesModel($this->db);
-                $result = $model->getOneById((int) $request->getAttribute('id'));
-            } catch (\Exception $e) {
-                return $response->withJson(['errors' => ['detail' => $e->getMessage()]], $e->getCode());
-            }
-
+            // Calls model get method
+            $model = new PdoModels\MoviesModel($this->db);
+            // @throws JsonApiException
+            $result = $model->getOneById((int) $request->getAttribute('id'));
             // Formats output
             return $response->withJson(['data' => [$result]]);
         });
 
         // Retrieves overall movie rating based on all users' ratings
         $slim->get('/movieratings/{movie_id}', function (Request $request, Response $response) {
-            try {
-                // Calls model get method
-                $model = new PdoModels\MovieratingsModel($this->db);
-                $result = $model->getOneByMovieId((int) $request->getAttribute('movie_id'));
-            } catch (\Exception $e) {
-                return $response->withJson(['errors' => ['detail' => $e->getMessage()]], $e->getCode());
-            }
-
+            // Calls model get method
+            $model = new PdoModels\MovieratingsModel($this->db);
+            // @throws JsonApiException
+            $result = $model->getOneByMovieId((int) $request->getAttribute('movie_id'));
             // Formats output
             return $response->withJson(['data' => [$result]]);
         });
@@ -125,15 +117,12 @@ class App
                         break;
                 }
             }
-            try {
-                // Calls model set method
-                $model = new PdoModels\MovieratingsModel($this->db);
-                $result = $model->postNew($data['movie_id'], $data['average_rating'], $data['total_ratings']);
-            } catch (\Exception $e) {
-                return $response->withJson($e->getMessage(), $e->getCode());
-            }
-
-            return $response->withJson($result);
+            // Calls model set method
+            $model = new PdoModels\MovieratingsModel($this->db);
+            // @throws JsonApiException
+            $result = $model->postNew($data['movie_id'], $data['average_rating'], $data['total_ratings']);
+            // Formats output
+            return $response->withJson(['data' => [$result]]);
         });
 
         return $slim;
