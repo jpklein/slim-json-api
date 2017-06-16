@@ -176,4 +176,31 @@ class AppTest extends \PHPUnit\Framework\TestCase
         $actual = $response->getStatus();
         $this->assertEquals($expected, $actual);
     }
+
+    /** Tests \movieratings POST endpoint **/
+
+    /**
+     * @test
+     */
+    public function testPostRequestToInvalidMovieratingsEndpointReturnsError()
+    {
+        // Sends the request with POST data
+        $this->client->request('POST', 'http://localhost:8080/movieratings/1', ['movie_id' => '1', 'average_rating' => '5', 'total_ratings' => '4']);
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $expected = '{"errors":{"detail":"MovieRating already exists for Movie ID 1"}}';
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 409;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
 }
