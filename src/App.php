@@ -75,6 +75,21 @@ class App
             return new JsonApiErrorHandler;
         };
 
+        // Overrides default Slim error handler
+        $dic['notAllowedHandler'] = function ($c) {
+            return function (Request $request, Response $response, array $methods) use ($c) {
+                // @todo Logs attempts to access unsupported endpoints
+                // $this->writeToErrorLog($exception);
+
+                $body = ['errors' => ['detail' => 'Not Allowed']];
+
+                return $response
+                    ->withJson($body, 405)
+                    ->withHeader('Content-Type', 'application/vnd.api+json')
+                    ->withHeader('Allow', implode(', ', $methods));
+            };
+        };
+
         // Adds middleware for JSON API content negotiation
         $middleware = new JsonApiMiddleware;
         $slim->add($middleware);
