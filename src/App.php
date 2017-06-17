@@ -114,7 +114,7 @@ class App
             return $response->withJson(['data' => [$result]]);
         });
 
-        // Accepts movie rating per user
+        // Accepts average movie rating
         // @todo Limits spam requests to endpoint
         $slim->post('/movieratings', function (Request $request, Response $response) {
             $params = [];
@@ -162,6 +162,59 @@ class App
             $result = $model->postNew($params['movie_id'], $params['average_rating'], $params['total_ratings']);
             // Formats output
             return $response->withJson(['data' => [$result]]);
+        });
+
+        // Updates movie average rating
+        $slim->patch('/movieratings/{movie_id}', function (Request $request, Response $response, array $args) {
+            $params = [];
+
+            // Errors if array members referenced below are undefined
+            set_error_handler(function () {
+                throw new Exception('Bad Request', 400);
+            });
+
+            // Validates data format
+            $data = $request->getParsedBody()['data'];
+            $subdata = $data['relationships']['movies']['data'];
+
+            // Validates JSON API resource definition
+            switch (false) {
+                case $data['type']     === 'movieratings':
+                case $subdata['type']  === 'movies':
+                case $subdata['id']    === $args['movie_id']:
+                    throw new Exception('Bad Request', 400);
+                    break;
+            }
+            // Sanitizes parameters
+            foreach ($data['attributes'] + $subdata as $k => $v) {
+                switch ($k) {
+                    case 'id':
+                        $k = 'movie_id';
+                        // Falls through to test integer value input
+                    case 'average_rating':
+                    case 'total_ratings':
+                        // Ignores value unless it passes validation
+                        if (!is_bool($v) && ($v = filter_var($v, FILTER_VALIDATE_INT)) !== false) {
+                            $params[$k] = (int) $v;
+                        }
+                        break;
+                }
+            }
+
+            // Validates required parameters
+            if (!$params['movie_id'] || !$params['average_rating'] || !$params['total_ratings']) {
+                throw new Exception('Bad Request', 400);
+            }
+
+            // Allows other errors besides 400 to be returned
+            restore_error_handler();
+
+            // // Calls model set method
+            // $model = new PdoModels\MovieratingsModel($this->db);
+            // // @throws JsonApiException
+            // $result = $model->postNew($params['movie_id'], $params['average_rating'], $params['total_ratings']);
+            // // Formats output
+            // return $response->withJson(['data' => [$result]]);
         });
 
         return $slim;

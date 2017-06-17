@@ -316,4 +316,79 @@ class AppTest extends \PHPUnit\Framework\TestCase
         $actual = $response->getStatus();
         $this->assertEquals($expected, $actual);
     }
+
+    /** Tests \movieratings PATCH endpoint **/
+
+    /**
+     * @test
+     */
+    public function testInvalidPatchRequestToMovieratingsEndpointReturnsError()
+    {
+        // Resets the movieratings table
+        (new PdoModels\MovieratingsModelTest)->setUp();
+
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Sends request with non-JSON POST data
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ['movie_id' => '1', 'average_rating' => '5', 'total_ratings' => '4']);
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends request without root node
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => "4"], "relationships" => ["movies" => ["data" => ["type" => "movies", "id" => "1"]]]]);
+        // Compares page contents
+        $actual = ($this->client->getResponse())->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends request without subroot node
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ["data" => ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => "4"], "relationships" => ["movies" => []]]]);
+        // Compares page contents
+        $actual = ($this->client->getResponse())->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends request with incorrect datatype
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ["data" => ["type" => "movierating", "attributes" => ["average_rating" => "5", "total_ratings" => "4"], "relationships" => ["movies" => ["data" => ["type" => "movies", "id" => "1"]]]]]);
+        // Compares page contents
+        $actual = ($this->client->getResponse())->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends request with missing subdatatype
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ["data" => ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => "4"], "relationships" => ["movies" => ["data" => ["id" => "1"]]]]]);
+        // Compares page contents
+        $actual = ($this->client->getResponse())->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends request with incorrect subdatatype id
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ["data" => ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => "4"], "relationships" => ["movies" => ["data" => ["type" => "movies", "id" => "2"]]]]]);
+        // Compares page contents
+        $actual = ($this->client->getResponse())->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends request with invalid subdatatype id
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/2spoopy', ["data" => ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => "4"], "relationships" => ["movies" => ["data" => ["type" => "movies", "id" => "2spoopy"]]]]]);
+        // Compares page contents
+        $actual = ($this->client->getResponse())->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends request with zero-value attribute
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ["data" => ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => 0], "relationships" => ["movies" => ["data" => ["type" => "movies", "id" => "1"]]]]]);
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
 }
