@@ -113,7 +113,7 @@ class App
             $data = $request->getParsedBody()['data'];
             $subdata = $data['relationships']['movies']['data'];
             if ($data['type'] !== 'movieratings' || $subdata['type'] !== 'movies') {
-                throw new \Exception();
+                throw new Exception('Bad Request', 400);
             }
 
             // Sanitizes input parameters
@@ -135,7 +135,7 @@ class App
 
             // Validates required parameters
             if (!($params['movie_id'] && $params['average_rating'] && $params['total_ratings'])) {
-                throw new \Exception();
+                throw new Exception('Bad Request', 400);
             }
 
             // Allows other errors besides 400 to be returned

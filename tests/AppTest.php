@@ -184,12 +184,72 @@ class AppTest extends \PHPUnit\Framework\TestCase
      */
     public function testInvalidPostRequestToMovieratingsEndpointReturnsError()
     {
-        // Sends the request with invalid POST data
+        // Resets the movieratings table
+        (new PdoModels\MovieratingsModelTest)->setUp();
+
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Sends the request with non-JSON POST data
         $this->client->request('POST', 'http://localhost:8080/movieratings', ['movie_id' => '2', 'average_rating' => '5', 'total_ratings' => '1']);
         $response = $this->client->getResponse();
 
         // Compares page contents
-        $expected = '{"errors":{"detail":"Bad Request"}}';
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // @todo Verifies that post data is JSON-formatted
+        // $this->client->request('POST', 'http://localhost:8080/movieratings', ["data" => ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => "1"], "relationships" => ["movies" => ["data" => ["type" => "movies", "id" => "2"]]]]]);
+        // Compares page contents
+        // $actual = ($this->client->getResponse())->getContent();
+        // $this->assertEquals($expected, $actual);
+
+        // Sends the request without required root member
+        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"type":"movieratings","attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}');
+        // Compares page contents
+        $actual = ($this->client->getResponse())->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends the request as array of data items
+        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":[{"type":"movieratings","attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}]}');
+        // Compares page contents
+        $actual = ($this->client->getResponse())->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends the request without movie data
+        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"type":"movieratings","attributes":{"average_rating":"5","total_ratings":"1"}}}');
+        // Compares page contents
+        $actual = ($this->client->getResponse())->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends the request data without type parameter
+        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}}');
+        // Compares page contents
+        $actual = ($this->client->getResponse())->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends the request data with invalid related type parameter
+        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"type":"movieratings","attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movie","id":"2"}}}}}');
+        // Compares page contents
+        $actual = ($this->client->getResponse())->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends the request data with missing movie id
+        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"type":"movieratings","attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies"}}}}}');
+        // Compares page contents
+        $actual = ($this->client->getResponse())->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends the request data with invalid attribute
+        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"type":"movieratings","attributes":{"average_rating":"5 stars","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}}');
+        // Compares page contents
+        $actual = ($this->client->getResponse())->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Sends the request data without required attribute
+        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"type":"movieratings","attributes":{"average_rating":"5"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}}');
+        $response = $this->client->getResponse();
+
+        // Compares page contents
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 
