@@ -185,6 +185,7 @@ class App
                     throw new Exception('Bad Request', 400);
                     break;
             }
+
             // Sanitizes parameters
             foreach ($data['attributes'] + $subdata as $k => $v) {
                 switch ($k) {
@@ -209,12 +210,12 @@ class App
             // Allows other errors besides 400 to be returned
             restore_error_handler();
 
-            // // Calls model set method
-            // $model = new PdoModels\MovieratingsModel($this->db);
-            // // @throws JsonApiException
-            // $result = $model->postNew($params['movie_id'], $params['average_rating'], $params['total_ratings']);
-            // // Formats output
-            // return $response->withJson(['data' => [$result]]);
+            // Calls model set method
+            $model = new PdoModels\MovieratingsModel($this->db);
+            // @throws JsonApiException
+            $result = $model->patchByMovieId($params['movie_id'], $params['average_rating'], $params['total_ratings']);
+            // Formats output
+            return $response->withJson(['data' => [$result]]);
         });
 
         return $slim;
