@@ -12,6 +12,7 @@ namespace RestSample;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use RestSample\Exceptions\JsonApiException as Exception;
+use RestSample\SlimControllers\UsermovieratingsController;
 use RestSample\SlimHandlers\JsonApiErrorHandler;
 use RestSample\SlimMiddleware\JsonApiResponsibilitiesMiddleware as JsonApiMiddleware;
 
@@ -218,7 +219,12 @@ class App
             return $response->withJson(['data' => [$result]]);
         });
 
-        $slim->map(['GET'], '/usermovieratings[/{params:.*}]', \RestSample\SlimControllers\UsermovieratingsController);
+        // Displays a user's rating of a movie
+        $dic['UsermovieratingsController'] = function ($c) {
+            return new UsermovieratingsController($c->db);
+        };
+        $p ='/usermovieratings/{user_id:[0-9]+}/movies/{movie_id:[0-9]+}';
+        $slim->get($p, 'UsermovieratingsController:get');
 
         return $slim;
     }
