@@ -218,6 +218,8 @@ class App
             return $response->withJson(['data' => [$result]]);
         });
 
+        $slim->map(['GET'], '/usermovieratings[/{params:.*}]', \RestSample\SlimControllers\UsermovieratingsController);
+
         return $slim;
     }
 }
