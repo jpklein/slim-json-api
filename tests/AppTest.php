@@ -1,10 +1,4 @@
-<?php
-/**
- * @author    Philippe Klein <jpklein@gmail.com>
- * @copyright Copyright (c) 2017 Philippe Klein
- * @version   0.4
- */
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace RestSample\Tests;
 
@@ -403,6 +397,90 @@ class AppTest extends \PHPUnit\Framework\TestCase
 
         // Compares page contents
         $expected = '{"data":[{"type":"movieratings","id":"1","attributes":{"average_rating":"5","total_ratings":"4"},"relationships":{"movies":{"data":{"type":"movies","id":"1"}}}}]}';
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 200;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /** Tests \usermovieratings POST endpoint **/
+
+    private const TEST_POST = [
+        "data" => [
+            "type" => "usermovieratings",
+            "attributes" => [
+                "rating" => "5"
+            ],
+            "relationships" => [
+                "users" => [
+                    "data" => [
+                        "type" => "users",
+                        "id" => "1"
+                    ]
+                ],
+                "movies" => [
+                    "data" => [
+                        "type" => "movies",
+                        "id" => "2"
+                    ]
+                ]
+            ]
+        ]
+    ];
+
+    /**
+     * @test
+     */
+    public function usermovieratings_POST_with_extra_URI_params_returns_405_error()
+    {
+        $expected = '{"errors":{"detail":"Not Allowed"}}';
+
+        // Sends request with POST JSON data
+        $this->client->request('POST', 'http://localhost:8080/usermovieratings/1/movies/2', self::TEST_POST);
+
+        // Fetches app response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 405;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     */
+    public function usermovieratings_POST_returns_data()
+    {
+        // Resets the usermovieratings table
+        (new PdoModels\UsermovieratingsModelTest)->setUp();
+
+        $expected = '{"data":[{"type":"usermovieratings","id":"4","attributes":{"rating":"5"},"relationships":{"users":{"data":{"type":"users","id":"1"}},"movies":{"data":{"type":"movies","id":"2"}}}}]}';
+
+        // Sends request with POST JSON data
+        $this->client->request('POST', 'http://localhost:8080/usermovieratings', self::TEST_POST);
+
+        // Fetches app response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 

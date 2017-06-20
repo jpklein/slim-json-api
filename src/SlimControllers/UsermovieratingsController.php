@@ -51,10 +51,6 @@ class UsermovieratingsController //extends \RestSample\SlimController
      */
     public function post(Request $request, Response $response)
     {
-        // Fetches URI parameters
-        $user_id  = $request->getAttribute('user_id');
-        $movie_id = $request->getAttribute('movie_id');
-
         // Errors if array members referenced below are undefined
         set_error_handler(function () {
             throw new Exception('Bad Request', 400);
@@ -69,21 +65,23 @@ class UsermovieratingsController //extends \RestSample\SlimController
         switch (false) {
             case $data['type']      === 'usermovieratings':
             case $userdata['type']  === 'users':
-            case $userdata['id']    === $user_id:
             case $moviedata['type'] === 'movies':
-            case $moviedata['id']   === $movie_id:
                 throw new Exception('Bad Request', 400);
                 break;
         }
 
         // Validates required parameters
-        foreach ($data['attributes'] as $k => $v) {
+        $parameters = ['user_id' => $userdata['id'], 'movie_id' => $moviedata['id']] + $data['attributes'];
+        foreach ($parameters as $k => $v) {
             switch ($k) {
+                case 'user_id':
+                case 'movie_id':
                 case 'rating':
-                    // Errors unless it passes validation
-                    if (is_bool($v) || ($v = filter_var($v, FILTER_VALIDATE_INT)) === false) {
+                    // Errors unless all parameters pass validation
+                    if (is_bool($v) || ($v = filter_var($v, FILTER_VALIDATE_INT)) === false || !$v) {
                         throw new Exception('Bad Request', 400);
                     }
+                    // Creates vars in local closure with param names
                     ${$k} = (int) $v;
                     break;
             }
@@ -93,7 +91,7 @@ class UsermovieratingsController //extends \RestSample\SlimController
         restore_error_handler();
 
         // Calls model set method
-        $result = $this->model->postNew((int) $user_id, (int) $movie_id, $rating);
+        $result = $this->model->postNew($user_id, $movie_id, $rating);
 
         // Formats output
         return $response->withJson(['data' => [$result]]);
