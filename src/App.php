@@ -223,8 +223,14 @@ class App
         $dic['UsermovieratingsController'] = function ($c) {
             return new UsermovieratingsController($c->db);
         };
-        $p ='/usermovieratings/{user_id:[0-9]+}/movies/{movie_id:[0-9]+}';
-        $slim->get($p, 'UsermovieratingsController:get');
+        // Defines usermovieratings endpoints
+        $slim->group('/usermovieratings', function () {
+            $this->post('', 'UsermovieratingsController:post');
+
+            $pattern = '/{user_id:[0-9]+}/movies/{movie_id:[0-9]+}';
+            $this->get($pattern, 'UsermovieratingsController:get');
+            $this->patch($pattern, 'UsermovieratingsController:patch');
+        });
 
         return $slim;
     }
