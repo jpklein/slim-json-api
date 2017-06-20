@@ -30,7 +30,7 @@ class UsermovieratingsController //extends \RestSample\SlimController
     public function get(Request $request, Response $response)
     {
         // Fetches URI parameters
-        // NB there's no need sanitize parameters here. FastRoute
+        // NB there's no need sanitize arguments here. FastRoute
         // performs validation using regex pattern matching
         $user_id  = (int) $request->getAttribute('user_id');
         $movie_id = (int) $request->getAttribute('movie_id');
@@ -76,8 +76,18 @@ class UsermovieratingsController //extends \RestSample\SlimController
                 break;
         }
 
-        // NB there's no need sanitize parameters here. FastRoute
-        // performs validation using regex pattern matching
+        // Validates required parameters
+        foreach ($data['attributes'] as $k => $v) {
+            switch ($k) {
+                case 'rating':
+                    // Errors unless it passes validation
+                    if (is_bool($v) || ($v = filter_var($v, FILTER_VALIDATE_INT)) === false) {
+                        throw new Exception('Bad Request', 400);
+                    }
+                    ${$k} = (int) $v;
+                    break;
+            }
+        }
 
         // Allows other errors besides 400 to be returned
         restore_error_handler();
