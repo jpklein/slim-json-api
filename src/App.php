@@ -1,17 +1,12 @@
-<?php
-/**
- * @author    Philippe Klein <jpklein@gmail.com>
- * @copyright Copyright (c) 2017 Philippe Klein
- * @version   0.4
- */
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace RestSample;
 
-// Aliases psr-7 objects
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use RestSample\Exceptions\JsonApiException as Exception;
+use RestSample\SlimControllers\MoviesController;
+use RestSample\SlimControllers\MovieratingsController;
 use RestSample\SlimControllers\UsermovieratingsController;
 use RestSample\SlimHandlers\JsonApiErrorHandler;
 use RestSample\SlimMiddleware\JsonApiResponsibilitiesMiddleware as JsonApiMiddleware;
@@ -51,8 +46,6 @@ class App
 
     /**
      * Returns Slim dispatcher to handle incoming HTTP requests
-     * @todo Persists individual ratings in usermovieratings table
-     * @todo Validates input parameters in middleware
      * @todo Exposes OPTIONS endpoint
      *
      * @return \Slim\App
@@ -82,10 +75,8 @@ class App
                 // @todo Logs attempts to access unsupported endpoints
                 // $this->writeToErrorLog($exception);
 
-                $body = ['errors' => ['detail' => 'Not Allowed']];
-
                 return $response
-                    ->withJson($body, 405)
+                    ->withJson(['errors' => ['detail' => 'Not Allowed']], 405)
                     ->withHeader('Content-Type', 'application/vnd.api+json')
                     ->withHeader('Allow', implode(', ', $methods));
             };
@@ -95,128 +86,27 @@ class App
         $middleware = new JsonApiMiddleware;
         $slim->add($middleware);
 
-        // Retrieves movie data given a unique ID
-        $slim->get('/movies/{id}', function (Request $request, Response $response) {
-            // Calls model get method
-            $model = new PdoModels\MoviesModel($this->db);
-            // @throws JsonApiException
-            $result = $model->getOneById((int) $request->getAttribute('id'));
-            // Formats output
-            return $response->withJson(['data' => [$result]]);
-        });
-
-        // Retrieves overall movie rating based on all users' ratings
-        $slim->get('/movieratings/{movie_id}', function (Request $request, Response $response) {
-            // Calls model get method
-            $model = new PdoModels\MovieratingsModel($this->db);
-            // @throws JsonApiException
-            $result = $model->getOneByMovieId((int) $request->getAttribute('movie_id'));
-            // Formats output
-            return $response->withJson(['data' => [$result]]);
-        });
-
-        // Accepts average movie rating
         // @todo Limits spam requests to endpoint
-        $slim->post('/movieratings', function (Request $request, Response $response) {
-            $params = [];
+        // @todo Checks authentication/authorization
 
-            // Errors if array members referenced below are undefined
-            set_error_handler(function () {
-                throw new Exception('Bad Request', 400);
-            });
+        // Displays movie data
+        $dic['MoviesController'] = function ($c) {
+            return new MoviesController($c->db);
+        };
+        // Defines movies endpoints
+        $slim->get('/movies/{id}', 'MoviesController:get');
 
-            // Ensures correct input format
-            $data = $request->getParsedBody()['data'];
-            $subdata = $data['relationships']['movies']['data'];
-            if ($data['type'] !== 'movieratings' || $subdata['type'] !== 'movies') {
-                throw new Exception('Bad Request', 400);
-            }
+        // Displays overall movie rating based on all user ratings
+        $dic['MovieratingsController'] = function ($c) {
+            return new MovieratingsController($c->db);
+        };
+        // Defines movieratings endpoints
+        $slim->group('/movieratings', function () {
+            $this->post('', 'MovieratingsController:post');
 
-            // Sanitizes input parameters
-            foreach ($data['attributes'] + $subdata as $k => $v) {
-                switch ($k) {
-                    case 'id':
-                        $k = 'movie_id';
-                        // Falls through to test integer value input
-                    case 'average_rating':
-                        // Falls through to test integer value input
-                    case 'total_ratings':
-                        // Ignores value unless it passes validation
-                        if (!is_bool($v) && ($v = filter_var($v, FILTER_VALIDATE_INT)) !== false) {
-                            $params[$k] = (int) $v;
-                        }
-                        break;
-                }
-            }
-
-            // Validates required parameters
-            if (!($params['movie_id'] && $params['average_rating'] && $params['total_ratings'])) {
-                throw new Exception('Bad Request', 400);
-            }
-
-            // Allows other errors besides 400 to be returned
-            restore_error_handler();
-
-            // Calls model set method
-            $model = new PdoModels\MovieratingsModel($this->db);
-            // @throws JsonApiException
-            $result = $model->postNew($params['movie_id'], $params['average_rating'], $params['total_ratings']);
-            // Formats output
-            return $response->withJson(['data' => [$result]]);
-        });
-
-        // Updates movie average rating
-        $slim->patch('/movieratings/{movie_id}', function (Request $request, Response $response, array $args) {
-            $params = [];
-
-            // Errors if array members referenced below are undefined
-            set_error_handler(function () {
-                throw new Exception('Bad Request', 400);
-            });
-
-            // Validates data format
-            $data = $request->getParsedBody()['data'];
-            $subdata = $data['relationships']['movies']['data'];
-
-            // Validates JSON API resource definition
-            switch (false) {
-                case $data['type']     === 'movieratings':
-                case $subdata['type']  === 'movies':
-                case $subdata['id']    === $args['movie_id']:
-                    throw new Exception('Bad Request', 400);
-                    break;
-            }
-
-            // Sanitizes parameters
-            foreach ($data['attributes'] + $subdata as $k => $v) {
-                switch ($k) {
-                    case 'id':
-                        $k = 'movie_id';
-                        // Falls through to test integer value input
-                    case 'average_rating':
-                    case 'total_ratings':
-                        // Ignores value unless it passes validation
-                        if (!is_bool($v) && ($v = filter_var($v, FILTER_VALIDATE_INT)) !== false) {
-                            $params[$k] = (int) $v;
-                        }
-                        break;
-                }
-            }
-
-            // Validates required parameters
-            if (!$params['movie_id'] || !$params['average_rating'] || !$params['total_ratings']) {
-                throw new Exception('Bad Request', 400);
-            }
-
-            // Allows other errors besides 400 to be returned
-            restore_error_handler();
-
-            // Calls model set method
-            $model = new PdoModels\MovieratingsModel($this->db);
-            // @throws JsonApiException
-            $result = $model->patchByMovieId($params['movie_id'], $params['average_rating'], $params['total_ratings']);
-            // Formats output
-            return $response->withJson(['data' => [$result]]);
+            $pattern = '/{movie_id:[0-9]+}';
+            $this->get($pattern, 'MovieratingsController:get');
+            $this->patch($pattern, 'MovieratingsController:patch');
         });
 
         // Displays a user's rating of a movie
