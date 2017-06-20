@@ -2,22 +2,23 @@
 
 namespace RestSample\SlimControllers;
 
-// Aliases psr-7 objects
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use RestSample\Exceptions\JsonApiException as Exception;
 use RestSample\PdoModels\UsermovieratingsModel as Model;
 
-/** */
-class UsermovieratingsController //extends \RestSample\SlimController
+class UsermovieratingsController
 {
+    use \RestSample\SlimControllerTrait;
+
     /**
-     * @param  PDO $db
+     * Connects controller to model on demand
+     *
+     * @return RestSample\PdoModels\UsermovieratingsModel
      */
-    public function __construct(\PDO $db)
+    final private function getModel()
     {
-        // Connects controller to model
-        $this->model = new Model($db);
+        return new Model(self::$db);
     }
 
     /**
@@ -36,7 +37,7 @@ class UsermovieratingsController //extends \RestSample\SlimController
         $movie_id = (int) $request->getAttribute('movie_id');
 
         // Calls model get method
-        $result = $this->model->getOneByPrimaryKeys($user_id, $movie_id);
+        $result = $this->getModel()->getOneByPrimaryKeys($user_id, $movie_id);
 
         // Formats output
         return $response->withJson(['data' => [$result]]);
@@ -91,7 +92,7 @@ class UsermovieratingsController //extends \RestSample\SlimController
         restore_error_handler();
 
         // Calls model set method
-        $result = $this->model->postNew($user_id, $movie_id, $rating);
+        $result = $this->getModel()->postNew($user_id, $movie_id, $rating);
 
         // Formats output
         return $response->withJson(['data' => [$result]]);
@@ -148,7 +149,7 @@ class UsermovieratingsController //extends \RestSample\SlimController
         restore_error_handler();
 
         // Calls model set method
-        $result = $this->model->patchByPrimaryKeys((int) $user_id, (int) $movie_id, $rating);
+        $result = $this->getModel()->patchByPrimaryKeys((int) $user_id, (int) $movie_id, $rating);
 
         // Formats output
         return $response->withJson(['data' => [$result]]);
