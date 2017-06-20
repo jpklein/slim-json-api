@@ -142,9 +142,7 @@ class UsermovieratingsControllerTest extends \PHPUnit\Framework\TestCase
         $body = self::TEST_POST['data'];
 
         // Adds parameters to request
-        $request = $this->request
-            ->withAttributes(['user_id' => '1', 'movie_id' => '2'])
-            ->withParsedBody($body);
+        $request = $this->request->withParsedBody($body);
 
         // Describes expected exception
         $this->expectException(Exception::class);
@@ -165,9 +163,7 @@ class UsermovieratingsControllerTest extends \PHPUnit\Framework\TestCase
         unset($body['data']['relationships']);
 
         // Adds parameters to request
-        $request = $this->request
-            ->withAttributes(['user_id' => '1', 'movie_id' => '2'])
-            ->withParsedBody($body);
+        $request = $this->request->withParsedBody($body);
 
         // Describes expected exception
         $this->expectException(Exception::class);
@@ -188,9 +184,7 @@ class UsermovieratingsControllerTest extends \PHPUnit\Framework\TestCase
         $body['data']['type'] = "invalid";
 
         // Adds parameters to request
-        $request = $this->request
-            ->withAttributes(['user_id' => '1', 'movie_id' => '2'])
-            ->withParsedBody($body);
+        $request = $this->request->withParsedBody($body);
 
         // Describes expected exception
         $this->expectException(Exception::class);
@@ -211,9 +205,7 @@ class UsermovieratingsControllerTest extends \PHPUnit\Framework\TestCase
         unset($body['data']['relationships']['users']['data']['type']);
 
         // Adds parameters to request
-        $request = $this->request
-            ->withAttributes(['user_id' => '1', 'movie_id' => '2'])
-            ->withParsedBody($body);
+        $request = $this->request->withParsedBody($body);
 
         // Describes expected exception
         $this->expectException(Exception::class);
@@ -231,12 +223,10 @@ class UsermovieratingsControllerTest extends \PHPUnit\Framework\TestCase
     {
         // Creates malformed post data
         $body = self::TEST_POST;
-        $body['data']['relationships']['movies']['data']['id'] = '1';
+        $body['data']['relationships']['movies']['data']['id'] = 'null';
 
         // Adds parameters to request
-        $request = $this->request
-            ->withAttributes(['user_id' => '1', 'movie_id' => '2'])
-            ->withParsedBody($body);
+        $request = $this->request->withParsedBody($body);
 
         // Describes expected exception
         $this->expectException(Exception::class);
@@ -257,9 +247,7 @@ class UsermovieratingsControllerTest extends \PHPUnit\Framework\TestCase
         $body['data']['attributes']['rating'] = true;
 
         // Adds parameters to request
-        $request = $this->request
-            ->withAttributes(['user_id' => '1', 'movie_id' => '2'])
-            ->withParsedBody($body);
+        $request = $this->request->withParsedBody($body);
 
         // Describes expected exception
         $this->expectException(Exception::class);
@@ -280,9 +268,7 @@ class UsermovieratingsControllerTest extends \PHPUnit\Framework\TestCase
         unset($body['data']['attributes']);
 
         // Adds parameters to request
-        $request = $this->request
-            ->withAttributes(['user_id' => '1', 'movie_id' => '2'])
-            ->withParsedBody($body);
+        $request = $this->request->withParsedBody($body);
 
         // Describes expected exception
         $this->expectException(Exception::class);
@@ -303,9 +289,7 @@ class UsermovieratingsControllerTest extends \PHPUnit\Framework\TestCase
         $body['data']['relationships']['movies']['data']['id'] = "1";
 
         // Adds parameters to request
-        $request = $this->request
-            ->withAttributes(['user_id' => '1', 'movie_id' => '1'])
-            ->withParsedBody($body);
+        $request = $this->request->withParsedBody($body);
 
         // Describes expected exception
         $this->expectException(Exception::class);
@@ -331,9 +315,7 @@ class UsermovieratingsControllerTest extends \PHPUnit\Framework\TestCase
             ->withHeader('Content-Type', 'application/json;charset=utf-8');
 
         // Adds parameters to request
-        $request = $this->request
-            ->withAttributes(['user_id' => '1', 'movie_id' => '2'])
-            ->withParsedBody(self::TEST_POST);
+        $request = $this->request->withParsedBody(self::TEST_POST);
 
         // Fires controller method
         $actual = $this->controller->post($request, $response);
