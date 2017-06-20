@@ -6,6 +6,8 @@ use Goutte\Client;
 
 class AppTest extends \PHPUnit\Framework\TestCase
 {
+    use \RestSample\Tests\SlimControllerTestTrait;
+
     public function __construct()
     {
         parent::__construct();
@@ -27,17 +29,19 @@ class AppTest extends \PHPUnit\Framework\TestCase
     /**
      * @test
      */
-    public function testRequestWithoutContentTypeReturnsException()
+    public function request_without_content_type_returns_400()
     {
         // Removes the Content-Type header
         $this->client->setClient(new \GuzzleHttp\Client());
+
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
 
         // Sends the request
         $this->client->request('GET', 'http://localhost:8080');
         $response = $this->client->getResponse();
 
         // Compares page contents
-        $expected = '{"errors":{"detail":"Bad Request"}}';
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 
@@ -61,10 +65,10 @@ class AppTest extends \PHPUnit\Framework\TestCase
      * @test
      * @todo Modifies default Slim 404 to meet JSON API spec
      */
-    public function testRequestForUndefinedEndpointReturnsException()
+    public function request_undefined_endpoint_returns_404()
     {
         // Sends the request
-        $this->client->request('GET', 'http://localhost:8080');
+        $this->client->request('GET', 'http://localhost:8080/null');
         $response = $this->client->getResponse();
 
         // Compares HTTP status code
@@ -78,14 +82,16 @@ class AppTest extends \PHPUnit\Framework\TestCase
     /**
      * @test
      */
-    public function testGetRequestToInvalidMoviesEndpointReturnsError()
+    public function GET_invalid_movies_endpoint_returns_404()
     {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"No Movie for ID 9"}}';
+
         // Sends the request
-        $this->client->request('GET', 'http://localhost:8080/movies/9');
+        $this->client->request('GET', 'http://localhost:8080/movies/null');
         $response = $this->client->getResponse();
 
         // Compares page contents
-        $expected = '{"errors":{"detail":"No Movie for ID 9"}}';
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 
@@ -103,14 +109,43 @@ class AppTest extends \PHPUnit\Framework\TestCase
     /**
      * @test
      */
-    public function testGetRequestToValidMoviesEndpointReturnsData()
+    public function GET_undefined_movies_endpoint_returns_404()
     {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"No Movie for ID 9"}}';
+
+        // Sends the request
+        $this->client->request('GET', 'http://localhost:8080/movies/9');
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 404;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     */
+    public function GET_movies_endpoint_returns_data()
+    {
+        // Mocks expected response
+        $expected = json_encode(self::$MOVIES_GET);
+
         // Sends the request
         $this->client->request('GET', 'http://localhost:8080/movies/1');
         $response = $this->client->getResponse();
 
         // Compares page contents
-        $expected = '{"data":[{"type":"movies","id":"1","attributes":{"name":"Avatar"}}]}';
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 
@@ -439,7 +474,7 @@ class AppTest extends \PHPUnit\Framework\TestCase
     /**
      * @test
      */
-    public function usermovieratings_POST_with_extra_URI_params_returns_405_error()
+    public function POST_invalid_usermovieratings_endpoint_returns_405()
     {
         $expected = '{"errors":{"detail":"Not Allowed"}}';
 
@@ -467,11 +502,12 @@ class AppTest extends \PHPUnit\Framework\TestCase
     /**
      * @test
      */
-    public function usermovieratings_POST_returns_data()
+    public function POST_usermovieratings_endpoint_returns_data()
     {
         // Resets the usermovieratings table
         (new PdoModels\UsermovieratingsModelTest)->setUp();
 
+        // Mocks expected response
         $expected = '{"data":[{"type":"usermovieratings","id":"4","attributes":{"rating":"5"},"relationships":{"users":{"data":{"type":"users","id":"1"}},"movies":{"data":{"type":"movies","id":"2"}}}}]}';
 
         // Sends request with POST JSON data
