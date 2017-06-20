@@ -94,7 +94,7 @@ class App
             return new MoviesController($c->db);
         };
         // Defines movies endpoints
-        $slim->get('/movies/{id}', 'MoviesController:get');
+        $slim->get('/movies/{id:[0-9]+}', 'MoviesController:get');
 
         // Displays overall movie rating based on all user ratings
         $dic['MovieratingsController'] = function ($c) {
