@@ -98,4 +98,61 @@ class UsermovieratingsController //extends \RestSample\SlimController
         // Formats output
         return $response->withJson(['data' => [$result]]);
     }
+
+    /**
+     * @param  Request  $request
+     * @param  Response $response
+     *
+     * @throws JsonApiException
+     * @return Slim\Http\Response
+     */
+    public function patch(Request $request, Response $response)
+    {
+        // Fetches URI parameters
+        $user_id  = $request->getAttribute('user_id');
+        $movie_id = $request->getAttribute('movie_id');
+
+        // Errors if array members referenced below are undefined
+        set_error_handler(function () {
+            throw new Exception('Bad Request', 400);
+        });
+
+        // Validates data format
+        $data      = $request->getParsedBody()['data'];
+        $userdata  = $data['relationships']['users']['data'];
+        $moviedata = $data['relationships']['movies']['data'];
+
+        // Validates JSON API resource definition
+        switch (false) {
+            case $data['type']      === 'usermovieratings':
+            case $userdata['type']  === 'users':
+            case $userdata['id']    === $user_id:
+            case $moviedata['type'] === 'movies':
+            case $moviedata['id']   === $movie_id:
+                throw new Exception('Bad Request', 400);
+                break;
+        }
+
+        // Validates required parameters
+        foreach ($data['attributes'] as $k => $v) {
+            switch ($k) {
+                case 'rating':
+                    // Errors unless it passes validation
+                    if (is_bool($v) || ($v = filter_var($v, FILTER_VALIDATE_INT)) === false) {
+                        throw new Exception('Bad Request', 400);
+                    }
+                    ${$k} = (int) $v;
+                    break;
+            }
+        }
+
+        // Allows other errors besides 400 to be returned
+        restore_error_handler();
+
+        // Calls model set method
+        $result = $this->model->patchByPrimaryKeys((int) $user_id, (int) $movie_id, $rating);
+
+        // Formats output
+        return $response->withJson(['data' => [$result]]);
+    }
 }

@@ -121,6 +121,6 @@ class UsermovieratingsModel extends \RestSample\PdoModel
         }
 
         // Returns JSON resource object
-        return self::getObjectFromTemplate(self::RESOURCE_TEMPLATE, $id, $rating, $user_id, $movie_id);
+        return self::getObjectFromTemplate(self::RESOURCE_TEMPLATE, (string) $id, (string) $rating, (string) $user_id, (string) $movie_id);
     }
 }
