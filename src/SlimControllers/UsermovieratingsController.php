@@ -93,7 +93,7 @@ class UsermovieratingsController //extends \RestSample\SlimController
         restore_error_handler();
 
         // Calls model set method
-        $result = $this->model->getOneByPrimaryKeys($user_id, $movie_id);
+        $result = $this->model->postNew((int) $user_id, (int) $movie_id, $rating);
 
         // Formats output
         return $response->withJson(['data' => [$result]]);

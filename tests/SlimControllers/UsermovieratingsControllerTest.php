@@ -26,6 +26,9 @@ class UsermovieratingsControllerTest extends \PHPUnit\Framework\TestCase
         // Instantiates controller
         $db = App::withConfig()->getDbConnection();
         $this->controller = new Controller($db);
+
+        // Resets usermovieratings table before each test
+        (new \RestSample\Tests\PdoModels\UsermovieratingsModelTest)->setUp();
     }
 
     /** Tests \usermovieratings GET endpoint **/
@@ -288,5 +291,61 @@ class UsermovieratingsControllerTest extends \PHPUnit\Framework\TestCase
 
         // Fires controller method
         $actual = $this->controller->post($request, new Response());
+    }
+
+    /**
+     * @test
+     */
+    public function POST_existing_resource_returns_409_error()
+    {
+        // Creates malformed post data
+        $body = self::TEST_POST;
+        $body['data']['relationships']['movies']['data']['id'] = "1";
+
+        // Adds parameters to request
+        $request = $this->request
+            ->withAttributes(['user_id' => '1', 'movie_id' => '1'])
+            ->withParsedBody($body);
+
+        // Describes expected exception
+        $this->expectException(Exception::class);
+        $this->expectExceptionCode(409);
+        $this->expectExceptionMessage('UserMovieRating already exists for Movie ID 1');
+
+        // Fires controller method
+        $actual = $this->controller->post($request, new Response());
+    }
+
+    /**
+     * @test
+     */
+    public function POST_new_resource_returns_data()
+    {
+        // Mocks expected response
+        $response = new Response();
+        $body = self::TEST_POST['data'];
+        $body = array_slice($body, 0, 1, true) + ['id' => '4'] + array_slice($body, 1, null, true);
+        $expected = $response
+            ->withJson(['data' => [$body]], 200)
+            ->withHeader('Content-Type', 'application/json;charset=utf-8');
+
+        // Adds parameters to request
+        $request = $this->request
+            ->withAttributes(['user_id' => '1', 'movie_id' => '2'])
+            ->withParsedBody(self::TEST_POST);
+
+        // Fires controller method
+        $actual = $this->controller->post($request, $response);
+
+        // Compares page contents
+        // NB we can't compare responses directly as body references a
+        // stream resource with unique ID
+        $this->assertEquals((string) $expected->getBody(), (string) $actual->getBody());
+
+        // Compares Content-Type header
+        $this->assertEquals($expected->getHeaders(), $actual->getHeaders());
+
+        // Compares HTTP status code
+        $this->assertEquals($expected->getStatusCode(), $actual->getStatusCode());
     }
 }
