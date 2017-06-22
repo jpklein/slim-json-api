@@ -11,7 +11,7 @@ define('APP_CONFIG', [
     'host'   => '127.0.0.1',
     'user'   => 'root',
     'pass'   => '',
-    'dbname' => 'rest_sample'
+    'dbname' => 'slim_json_api'
   ]
 
 ]);
