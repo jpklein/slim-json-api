@@ -41,8 +41,7 @@ class MoviesControllerTest extends \PHPUnit\Framework\TestCase
     public function GET_missing_resource_returns_404_error()
     {
         // Adds parameters to request
-        $request = $this->request
-            ->withAttributes(['id' => '9']);
+        $request = $this->request->withAttributes(['id' => '9']);
 
         // Describes expected exception
         $this->expectException(Exception::class);
@@ -61,6 +60,8 @@ class MoviesControllerTest extends \PHPUnit\Framework\TestCase
         $response = new Response();
 
         // Mocks expected response
+        // NB we expect normal JSON mimetype here since middleware
+        // handles formatting after controller call
         $expected = $response
             ->withJson(self::$MOVIES_GET, 200)
             ->withHeader('Content-Type', 'application/json;charset=utf-8');
@@ -72,6 +73,8 @@ class MoviesControllerTest extends \PHPUnit\Framework\TestCase
         $actual = $this->controller->get($request, $response);
 
         // Compares page contents
+        // NB we can't compare responses directly as body references a
+        // stream resource with unique ID
         $this->assertEquals((string) $expected->getBody(), (string) $actual->getBody());
 
         // Compares Content-Type header

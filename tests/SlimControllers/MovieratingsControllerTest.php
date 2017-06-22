@@ -60,6 +60,8 @@ class MovieratingsControllerTest extends \PHPUnit\Framework\TestCase
         $response = new Response();
 
         // Mocks expected response
+        // NB we expect normal JSON mimetype here since middleware
+        // handles formatting after controller call
         $expected = $response
             ->withJson(self::$MOVIERATINGS_GET, 200)
             ->withHeader('Content-Type', 'application/json;charset=utf-8');
@@ -71,6 +73,8 @@ class MovieratingsControllerTest extends \PHPUnit\Framework\TestCase
         $actual = $this->controller->get($request, $response);
 
         // Compares page contents
+        // NB we can't compare responses directly as body references a
+        // stream resource with unique ID
         $this->assertEquals((string) $expected->getBody(), (string) $actual->getBody());
 
         // Compares Content-Type header
@@ -80,10 +84,12 @@ class MovieratingsControllerTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected->getStatusCode(), $actual->getStatusCode());
     }
 
+    /** Tests \movieratings POST endpoint **/
+
     /**
      * @test
      */
-    public function POST_missing_resource_returns_400_error()
+    public function POST_without_resource_returns_400_error()
     {
         // Describes expected exception
         $this->expectException(Exception::class);
@@ -126,10 +132,12 @@ class MovieratingsControllerTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected->getStatusCode(), $actual->getStatusCode());
     }
 
+    /** Tests \movieratings PATCH endpoint **/
+
     /**
      * @test
      */
-    public function PATCH_missing_resource_returns_400_error()
+    public function PATCH_without_resource_returns_400_error()
     {
         // Adds parameters to request
         $request = $this->request->withAttributes(['movie_id' => '1']);
