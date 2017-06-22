@@ -39,6 +39,8 @@ class AppTest extends \PHPUnit\Framework\TestCase
 
         // Sends the request
         $this->client->request('GET', 'http://localhost:8080');
+
+        // Fetches the response
         $response = $this->client->getResponse();
 
         // Compares page contents
@@ -69,6 +71,8 @@ class AppTest extends \PHPUnit\Framework\TestCase
     {
         // Sends the request
         $this->client->request('GET', 'http://localhost:8080/null');
+
+        // Fetches the response
         $response = $this->client->getResponse();
 
         // Compares HTTP status code
@@ -81,24 +85,15 @@ class AppTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
+     * @todo Modifies default Slim 404 to meet JSON API spec
      */
     public function GET_invalid_movies_endpoint_returns_404()
     {
-        // Mocks expected response
-        $expected = '{"errors":{"detail":"No Movie for ID 9"}}';
-
         // Sends the request
         $this->client->request('GET', 'http://localhost:8080/movies/null');
+
+        // Fetches the response
         $response = $this->client->getResponse();
-
-        // Compares page contents
-        $actual = $response->getContent();
-        $this->assertEquals($expected, $actual);
-
-        // Compares Content-Type header
-        $expected = 'application/vnd.api+json';
-        $actual = $response->getHeaders()['Content-Type'][0];
-        $this->assertEquals($expected, $actual);
 
         // Compares HTTP status code
         $expected = 404;
@@ -116,6 +111,8 @@ class AppTest extends \PHPUnit\Framework\TestCase
 
         // Sends the request
         $this->client->request('GET', 'http://localhost:8080/movies/9');
+
+        // Fetches the response
         $response = $this->client->getResponse();
 
         // Compares page contents
@@ -143,6 +140,8 @@ class AppTest extends \PHPUnit\Framework\TestCase
 
         // Sends the request
         $this->client->request('GET', 'http://localhost:8080/movies/1');
+
+        // Fetches the response
         $response = $this->client->getResponse();
 
         // Compares page contents
@@ -164,15 +163,37 @@ class AppTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
+     * @todo Modifies default Slim 404 to meet JSON API spec
      */
-    public function testGetRequestToInvalidMovieratingsEndpointReturnsError()
+    public function GET_invalid_movieratings_endpoint_returns_404()
     {
         // Sends the request
+        $this->client->request('GET', 'http://localhost:8080/movieratings/null');
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares HTTP status code
+        $expected = 404;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     */
+    public function GET_undefined_movieratings_endpoint_returns_404()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"No MovieRating for Movie ID 9"}}';
+
+        // Sends the request
         $this->client->request('GET', 'http://localhost:8080/movieratings/9');
+
+        // Fetches the response
         $response = $this->client->getResponse();
 
         // Compares page contents
-        $expected = '{"errors":{"detail":"No MovieRating for Movie ID 9"}}';
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 
@@ -190,14 +211,18 @@ class AppTest extends \PHPUnit\Framework\TestCase
     /**
      * @test
      */
-    public function testGetRequestToValidMovieratingsEndpointReturnsData()
+    public function GET_movieratings_endpoint_returns_data()
     {
+        // Mocks expected response
+        $expected = json_encode(self::$MOVIERATINGS_GET);
+
         // Sends the request
         $this->client->request('GET', 'http://localhost:8080/movieratings/1');
+
+        // Fetches the response
         $response = $this->client->getResponse();
 
         // Compares page contents
-        $expected = '{"data":[{"type":"movieratings","id":"1","attributes":{"average_rating":"4","total_ratings":"3"},"relationships":{"movies":{"data":{"type":"movies","id":"1"}}}}]}';
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 
@@ -216,69 +241,68 @@ class AppTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
+     * @todo Modifies default Slim 404 to meet JSON API spec
      */
-    public function testInvalidPostRequestToMovieratingsEndpointReturnsError()
+    public function POST_invalid_movieratings_endpoint_returns_404()
     {
-        $expected = '{"errors":{"detail":"Bad Request"}}';
+        // Sends the request
+        $this->client->request('POST', 'http://localhost:8080/movieratings/null', self::$MOVIERATINGS_POST);
 
-        // Sends the request with non-JSON POST data
-        $this->client->request('POST', 'http://localhost:8080/movieratings', ['movie_id' => '2', 'average_rating' => '5', 'total_ratings' => '1']);
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares HTTP status code
+        $expected = 404;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     */
+    public function POST_undefined_movieratings_endpoint_returns_405()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Not Allowed"}}';
+
+        // Sends the request
+        $this->client->request('POST', 'http://localhost:8080/movieratings/1', self::$MOVIERATINGS_POST);
+
+        // Fetches the response
         $response = $this->client->getResponse();
 
         // Compares page contents
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 
-        // @todo Verifies that post data is JSON-formatted
-        // $this->client->request('POST', 'http://localhost:8080/movieratings', ["data" => ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => "1"], "relationships" => ["movies" => ["data" => ["type" => "movies", "id" => "2"]]]]]);
-        // Compares page contents
-        // $actual = ($this->client->getResponse())->getContent();
-        // $this->assertEquals($expected, $actual);
-
-        // Sends the request without required root member
-        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"type":"movieratings","attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}');
-        // Compares page contents
-        $actual = ($this->client->getResponse())->getContent();
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
         $this->assertEquals($expected, $actual);
 
-        // Sends the request as array of data items
-        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":[{"type":"movieratings","attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}]}');
-        // Compares page contents
-        $actual = ($this->client->getResponse())->getContent();
+        // Compares HTTP status code
+        $expected = 405;
+        $actual = $response->getStatus();
         $this->assertEquals($expected, $actual);
+    }
 
-        // Sends the request without movie data
-        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"type":"movieratings","attributes":{"average_rating":"5","total_ratings":"1"}}}');
-        // Compares page contents
-        $actual = ($this->client->getResponse())->getContent();
-        $this->assertEquals($expected, $actual);
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:60
+     * @todo Verifies POST data is JSON-formatted
+     */
+    public function POST_nonconformant_movierating_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
 
-        // Sends the request data without type parameter
-        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}}');
-        // Compares page contents
-        $actual = ($this->client->getResponse())->getContent();
-        $this->assertEquals($expected, $actual);
+        // Creates malformed post data
+        $body = ['movie_id' => '2', 'average_rating' => '5', 'total_ratings' => '1'];
 
-        // Sends the request data with invalid related type parameter
-        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"type":"movieratings","attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movie","id":"2"}}}}}');
-        // Compares page contents
-        $actual = ($this->client->getResponse())->getContent();
-        $this->assertEquals($expected, $actual);
+        // Sends the request
+        $this->client->request('POST', 'http://localhost:8080/movieratings', $body);
 
-        // Sends the request data with missing movie id
-        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"type":"movieratings","attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies"}}}}}');
-        // Compares page contents
-        $actual = ($this->client->getResponse())->getContent();
-        $this->assertEquals($expected, $actual);
-
-        // Sends the request data with invalid attribute
-        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"type":"movieratings","attributes":{"average_rating":"5 stars","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}}');
-        // Compares page contents
-        $actual = ($this->client->getResponse())->getContent();
-        $this->assertEquals($expected, $actual);
-
-        // Sends the request data without required attribute
-        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"type":"movieratings","attributes":{"average_rating":"5"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}}');
+        // Fetches the response
         $response = $this->client->getResponse();
 
         // Compares page contents
@@ -298,15 +322,294 @@ class AppTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:60
      */
-    public function testPostRequestToExistingMovieratingsEndpointReturnsError()
+    public function POST_movierating_without_root_node_returns_400()
     {
-        // Sends the request with JSON data in POST
-        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"type":"movieratings","attributes":{"average_rating":"5","total_ratings":"4"},"relationships":{"movies":{"data":{"type":"movies","id":"1"}}}}}');
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_POST['data'];
+
+        // Sends the request
+        $this->client->request('POST', 'http://localhost:8080/movieratings', $body);
+
+        // Fetches the response
         $response = $this->client->getResponse();
 
         // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:60
+     */
+    public function POST_movierating_in_array_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = ["data" => [self::$MOVIERATINGS_POST['data']]];
+
+        // Sends the request
+        $this->client->request('POST', 'http://localhost:8080/movieratings', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:61
+     */
+    public function POST_movierating_without_subdata_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_POST;
+        unset($body['data']['relationships']);
+
+        // Sends the request
+        $this->client->request('POST', 'http://localhost:8080/movieratings', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:65
+     */
+    public function POST_movierating_without_type_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_POST['data'];
+        unset($body['type']);
+
+        // Sends the request
+        $this->client->request('POST', 'http://localhost:8080/movieratings', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:66
+     */
+    public function POST_movierating_with_wrong_subtype_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_POST;
+        $body['data']['relationships']['movies']['data']['type'] = 'null';
+
+        // Sends the request
+        $this->client->request('POST', 'http://localhost:8080/movieratings', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:73
+     */
+    public function POST_movierating_without_subdata_id_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_POST;
+        unset($body['data']['relationships']['movies']['data']['id']);
+
+        // Sends the request
+        $this->client->request('POST', 'http://localhost:8080/movieratings', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:74
+     */
+    public function POST_movierating_with_invalid_attribute_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_POST;
+        $body['data']['attributes']['average_rating'] = 'null';
+
+        // Sends the request
+        $this->client->request('POST', 'http://localhost:8080/movieratings', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:75
+     */
+    public function POST_movierating_without_attribute_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_POST;
+        unset($body['data']['attributes']['total_ratings']);
+
+        // Sends the request
+        $this->client->request('POST', 'http://localhost:8080/movieratings', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:96
+     */
+    public function POST_existing_movierating_returns_409()
+    {
+        // Mocks expected response
         $expected = '{"errors":{"detail":"MovieRating already exists for Movie ID 1"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_POST;
+        $body['data']['relationships']['movies']['data']['id'] = "1";
+
+        // Sends the request
+        $this->client->request('POST', 'http://localhost:8080/movieratings', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 
@@ -324,17 +627,18 @@ class AppTest extends \PHPUnit\Framework\TestCase
     /**
      * @test
      */
-    public function testPostRequestToValidMovieratingsEndpointReturnsData()
+    public function POST_movieratings_endpoint_returns_data()
     {
-        // Resets auto increment on the movieratings table
-        (new PdoModels\MovieratingsModelTest)->setUp();
+        // Mocks expected response
+        $expected = '{"data":[{"type":"movieratings","id":"2","attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}]}';
 
-        // Sends the request with JSON data in POST
-        $this->client->request('POST', 'http://localhost:8080/movieratings', [], [], [], '{"data":{"type":"movieratings","attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}}');
+        // Sends the request
+        $this->client->request('POST', 'http://localhost:8080/movieratings', self::$MOVIERATINGS_POST);
+
+        // Fetches the response
         $response = $this->client->getResponse();
 
         // Compares page contents
-        $expected = '{"data":[{"type":"movieratings","id":"2","attributes":{"average_rating":"5","total_ratings":"1"},"relationships":{"movies":{"data":{"type":"movies","id":"2"}}}}]}';
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 
@@ -353,57 +657,305 @@ class AppTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @test
+     * @todo Modifies default Slim 404 to meet JSON API spec
      */
-    public function testInvalidPatchRequestToMovieratingsEndpointReturnsError()
+    public function PATCH_invalid_movieratings_endpoint_returns_404()
     {
+        // Sends the request
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/null', self::$MOVIERATINGS_PATCH);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares HTTP status code
+        $expected = 404;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     */
+    public function PATCH_undefined_movieratings_endpoint_returns_400()
+    {
+        // Mocks expected response
         $expected = '{"errors":{"detail":"Bad Request"}}';
 
-        // Sends request with non-JSON POST data
-        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ['movie_id' => '1', 'average_rating' => '5', 'total_ratings' => '4']);
+        // Sends the request
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/9');
+
+        // Fetches the response
         $response = $this->client->getResponse();
 
         // Compares page contents
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 
-        // Sends request without root node
-        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => "4"], "relationships" => ["movies" => ["data" => ["type" => "movies", "id" => "1"]]]]);
-        // Compares page contents
-        $actual = ($this->client->getResponse())->getContent();
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
         $this->assertEquals($expected, $actual);
 
-        // Sends request without subroot node
-        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ["data" => ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => "4"], "relationships" => ["movies" => []]]]);
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:120
+     * @todo Verifies PATCH data is JSON-formatted
+     */
+    public function PATCH_nonconformant_movierating_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = ['movie_id' => '1', 'average_rating' => '5', 'total_ratings' => '4'];
+
+        // Sends the request
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
         // Compares page contents
-        $actual = ($this->client->getResponse())->getContent();
+        $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 
-        // Sends request with incorrect datatype
-        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ["data" => ["type" => "movierating", "attributes" => ["average_rating" => "5", "total_ratings" => "4"], "relationships" => ["movies" => ["data" => ["type" => "movies", "id" => "1"]]]]]);
-        // Compares page contents
-        $actual = ($this->client->getResponse())->getContent();
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
         $this->assertEquals($expected, $actual);
 
-        // Sends request with missing subdatatype
-        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ["data" => ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => "4"], "relationships" => ["movies" => ["data" => ["id" => "1"]]]]]);
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:120
+     */
+    public function PATCH_movierating_without_root_node_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_PATCH['data'];
+
+        // Sends the request
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
         // Compares page contents
-        $actual = ($this->client->getResponse())->getContent();
+        $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 
-        // Sends request with incorrect subdatatype id
-        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ["data" => ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => "4"], "relationships" => ["movies" => ["data" => ["type" => "movies", "id" => "2"]]]]]);
-        // Compares page contents
-        $actual = ($this->client->getResponse())->getContent();
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
         $this->assertEquals($expected, $actual);
 
-        // Sends request with invalid subdatatype id
-        $this->client->request('PATCH', 'http://localhost:8080/movieratings/2spoopy', ["data" => ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => "4"], "relationships" => ["movies" => ["data" => ["type" => "movies", "id" => "2spoopy"]]]]]);
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:121
+     */
+    public function PATCH_movierating_without_subdata_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_PATCH;
+        unset($body['data']['relationships']['movies']);
+
+        // Sends the request
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
         // Compares page contents
-        $actual = ($this->client->getResponse())->getContent();
+        $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 
-        // Sends request with zero-value attribute
-        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ["data" => ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => 0], "relationships" => ["movies" => ["data" => ["type" => "movies", "id" => "1"]]]]]);
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:125
+     */
+    public function PATCH_movierating_with_invalid_type_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_PATCH;
+        $body['data']['type'] = 'null';
+
+        // Sends the request
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:126
+     */
+    public function PATCH_movierating_without_subtype_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_PATCH;
+        unset($body['data']['relationships']['movies']['data']['type']);
+
+        // Sends the request
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:127
+     */
+    public function PATCH_movierating_with_wrong_subdata_id_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_PATCH;
+        $body['data']['relationships']['movies']['data']['id'] = "2";
+
+        // Sends the request
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:127
+     */
+    public function PATCH_movierating_with_invalid_subdata_id_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_PATCH;
+        $body['data']['relationships']['movies']['data']['id'] = "null";
+
+        // Sends the request
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', $body);
+
+        // Fetches the response
+        $response = $this->client->getResponse();
+
+        // Compares page contents
+        $actual = $response->getContent();
+        $this->assertEquals($expected, $actual);
+
+        // Compares Content-Type header
+        $expected = 'application/vnd.api+json';
+        $actual = $response->getHeaders()['Content-Type'][0];
+        $this->assertEquals($expected, $actual);
+
+        // Compares HTTP status code
+        $expected = 400;
+        $actual = $response->getStatus();
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @see \RestSample\SlimControllers\MovieratingsController:135
+     */
+    public function PATCH_movierating_with_empty_attribute_returns_400()
+    {
+        // Mocks expected response
+        $expected = '{"errors":{"detail":"Bad Request"}}';
+
+        // Creates malformed post data
+        $body = self::$MOVIERATINGS_PATCH;
+        $body['data']['attributes']['total_ratings'] = 0;
+
+        // Sends the request
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', $body);
+
+        // Fetches the response
         $response = $this->client->getResponse();
 
         // Compares page contents
@@ -424,14 +976,18 @@ class AppTest extends \PHPUnit\Framework\TestCase
     /**
      * @test
      */
-    public function testPatchRequestToValidMovieratingsEndpointReturnsData()
+    public function PATCH_movieratings_endpoint_returns_data()
     {
-        // Sends the request with JSON data in PATCH
-        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', ["data" => ["type" => "movieratings", "attributes" => ["average_rating" => "5", "total_ratings" => "4"], "relationships" => ["movies" => ["data" => ["type" => "movies", "id" => "1"]]]]]);
+        // Mocks expected response
+        $expected = '{"data":[{"type":"movieratings","id":"1","attributes":{"average_rating":"5","total_ratings":"4"},"relationships":{"movies":{"data":{"type":"movies","id":"1"}}}}]}';
+
+        // Sends the request
+        $this->client->request('PATCH', 'http://localhost:8080/movieratings/1', self::$MOVIERATINGS_PATCH);
+
+        // Fetches the response
         $response = $this->client->getResponse();
 
         // Compares page contents
-        $expected = '{"data":[{"type":"movieratings","id":"1","attributes":{"average_rating":"5","total_ratings":"4"},"relationships":{"movies":{"data":{"type":"movies","id":"1"}}}}]}';
         $actual = $response->getContent();
         $this->assertEquals($expected, $actual);
 

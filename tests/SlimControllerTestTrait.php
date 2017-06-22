@@ -32,4 +32,41 @@ trait SlimControllerTestTrait
             ]
         ]]
     ];
+
+    protected static $MOVIERATINGS_POST = [
+        "data" => [
+            "type" => "movieratings",
+            "attributes" => [
+                "average_rating" => "5",
+                "total_ratings" => "1"
+            ],
+            "relationships" => [
+                "movies" => [
+                    "data" => [
+                        "type" => "movies",
+                        "id" => "2"
+                    ]
+                ]
+            ]
+        ]
+    ];
+
+    protected static $MOVIERATINGS_PATCH = [
+        "data" => [
+            "type" => "movieratings",
+            "id" => "1",
+            "attributes" => [
+                "average_rating" => "5",
+                "total_ratings" => "4"
+            ],
+            "relationships" => [
+                "movies" => [
+                    "data" => [
+                        "type" => "movies",
+                        "id" => "1"
+                    ]
+                ]
+            ]
+        ]
+    ];
 }
