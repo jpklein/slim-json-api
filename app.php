@@ -1,10 +1,9 @@
-<?php
-/**
- * @author    Philippe Klein <jpklein@gmail.com>
- * @copyright Copyright (c) 2017 Philippe Klein
- * @version   0.4
+#!/usr/bin/env php
+<?php declare(strict_types=1);
+/*
+ * Command-line script to create application database
+ * and stage it with test data.
  */
-declare(strict_types=1);
 
 // Restricts usage to command-line
 if (PHP_SAPI !== 'cli') {

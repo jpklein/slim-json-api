@@ -7,6 +7,9 @@ use Psr\Http\Message\ResponseInterface as Response;
 use RestSample\Exceptions\JsonApiException as Exception;
 use RestSample\PdoModels\MoviesModel as Model;
 
+/**
+ * Handles /movies endpoints
+ */
 class MoviesController
 {
     use \RestSample\SlimControllerTrait;

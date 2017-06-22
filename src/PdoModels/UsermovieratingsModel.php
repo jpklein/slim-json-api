@@ -1,16 +1,14 @@
-<?php
-/**
- * @author    Philippe Klein <jpklein@gmail.com>
- * @copyright Copyright (c) 2017 Philippe Klein
- * @version   0.4
- */
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace RestSample\PdoModels;
 
 use RestSample\Exceptions\JsonApiException as Exception;
 
-// Interface to Usermovierating entity. Represents a user's rating of a movie
+/**
+ * Interface to UserMovieRating entity
+ *
+ * Represents a user's rating of a movie.
+ */
 class UsermovieratingsModel extends \RestSample\PdoModel
 {
     const RESOURCE_TEMPLATE = [

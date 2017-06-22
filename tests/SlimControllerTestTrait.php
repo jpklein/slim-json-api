@@ -2,6 +2,9 @@
 
 namespace RestSample\Tests;
 
+/**
+ * Provides dummy entities for request/response testing
+ */
 trait SlimControllerTestTrait
 {
     protected static $MOVIES_GET = [

@@ -2,6 +2,9 @@
 
 namespace RestSample;
 
+/**
+ * Connects controller to model
+ */
 trait SlimControllerTrait
 {
     static private $db = null;

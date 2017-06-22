@@ -5,6 +5,9 @@ namespace RestSample\Tests\PdoModels;
 use \RestSample\PdoModel as PdoModel;
 use \RestSample\PdoModels\UsermovieratingsModel as ModelUnderTest;
 
+/**
+ * Test suite for UserMovieRating ORM
+ */
 class UsermovieratingsModelTest extends \PHPUnit\Framework\TestCase
 {
     // Includes DBUnit connection for testing

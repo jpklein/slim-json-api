@@ -1,10 +1,4 @@
-<?php
-/**
- * @author    Philippe Klein <jpklein@gmail.com>
- * @copyright Copyright (c) 2017 Philippe Klein
- * @version   0.4
- */
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace RestSample\Tests\SlimMiddleware;
 
@@ -13,6 +7,9 @@ use Slim\Http\Environment;
 use Slim\Http\Response;
 use Slim\Http\Request;
 
+/**
+ * Test suite for PSR-7 middleware to enforce JSON API protocol
+ */
 class JsonApiResponsibilitiesMiddlewareTest extends \PHPUnit\Framework\TestCase
 {
     public function __construct()

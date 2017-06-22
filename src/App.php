@@ -11,6 +11,11 @@ use RestSample\SlimControllers\UsermovieratingsController;
 use RestSample\SlimHandlers\JsonApiErrorHandler;
 use RestSample\SlimMiddleware\JsonApiResponsibilitiesMiddleware as JsonApiMiddleware;
 
+/**
+ * Main application
+ *
+ * Generates a Slim router to handle incoming requests.
+ */
 class App
 {
     private static $config;

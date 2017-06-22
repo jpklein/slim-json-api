@@ -1,18 +1,14 @@
-<?php
-/**
- * @author    Philippe Klein <jpklein@gmail.com>
- * @copyright Copyright (c) 2017 Philippe Klein
- * @version   0.4
- */
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace RestSample\SlimMiddleware;
 
-// Aliases psr-7 objects
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use RestSample\Exceptions\JsonApiException as Exception;
 
+/**
+ * PSR-7 middleware to enforce JSON API protocol
+ */
 class JsonApiResponsibilitiesMiddleware
 {
     // @todo Refactors exceptions to use JsonApiStatusesTrait::consts?

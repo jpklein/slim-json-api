@@ -1,6 +1,6 @@
 <phpunit colors="true">
   <testsuites>
-    <testsuite name="rest-sample">
+    <testsuite name="slim-json-api">
       <directory>tests</directory>
     </testsuite>
   </testsuites>

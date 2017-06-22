@@ -1,13 +1,12 @@
-<?php
-/**
- * @author    Philippe Klein <jpklein@gmail.com>
- * @copyright Copyright (c) 2017 Philippe Klein
- * @version   0.4
- */
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace RestSample\Tests;
 
+use \PHPUnit\DbUnit\Database\DefaultConnection;
+
+/**
+ * Provides DBUnit connection to persistance layer for testing
+ */
 trait PdoModelTestTrait
 {
     use \PHPUnit\DbUnit\TestCaseTrait;
@@ -15,7 +14,7 @@ trait PdoModelTestTrait
     static private $pdo = null;
     private $connection = null;
 
-    final public function getConnection(): \PHPUnit\DbUnit\Database\DefaultConnection
+    final public function getConnection(): DefaultConnection
     {
         if ($this->connection === null) {
             if (self::$pdo == null) {

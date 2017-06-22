@@ -1,16 +1,13 @@
-<?php
-/**
- * @author    Philippe Klein <jpklein@gmail.com>
- * @copyright Copyright (c) 2017 Philippe Klein
- * @version   0.4
- */
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace RestSample\Tests\PdoModels;
 
 use \RestSample\PdoModel as PdoModel;
 use \RestSample\PdoModels\MovieratingsModel as ModelUnderTest;
 
+/**
+ * Test suite for MovieRating ORM
+ */
 class MovieratingsModelTest extends \PHPUnit\Framework\TestCase
 {
     // Includes DBUnit connection for testing

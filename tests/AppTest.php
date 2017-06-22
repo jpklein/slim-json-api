@@ -4,6 +4,11 @@ namespace RestSample\Tests;
 
 use Goutte\Client;
 
+/**
+ * Test suite for API endpoints
+ *
+ * Emulates browser using Goutte crawler on localhost.
+ */
 class AppTest extends \PHPUnit\Framework\TestCase
 {
     use \RestSample\Tests\SlimControllerTestTrait;
@@ -22,6 +27,9 @@ class AppTest extends \PHPUnit\Framework\TestCase
 
     public function setUp()
     {
+        // Resets the movies table on each test
+        (new PdoModels\MoviesModelTest)->setUp();
+
         // Resets the movieratings table on each test
         (new PdoModels\MovieratingsModelTest)->setUp();
 

@@ -10,7 +10,9 @@ use Slim\Http\Environment;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-/** */
+/**
+ * Test suite for \movieratings endpoints
+ */
 class MovieratingsControllerTest extends \PHPUnit\Framework\TestCase
 {
     use \RestSample\Tests\SlimControllerTestTrait;
